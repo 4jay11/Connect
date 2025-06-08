@@ -1,0 +1,146 @@
+:root {
+  --color-bg: #ffffff;
+  --color-primary: #4f46e5;
+  --color-primary-dark: #4338ca;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-gray: #6b7280;
+  --color-border: #e5e7eb;
+
+  --radius-lg: 1rem;
+  --radius-md: 0.5rem;
+
+  --padding-lg: 2rem;
+  --padding-md: 1rem;
+}
+
+.profile-container {
+  width: 60%;
+  margin: 5rem auto;
+  background-color: var(--color-bg);
+  padding: var(--padding-md);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.profile-head {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.profile-image-container {
+  position: relative;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-border);
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-info h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-icon {
+  cursor: pointer;
+  color: var(--color-primary);
+}
+
+.profile-info p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-gray);
+  margin: 0.5rem 0 1rem;
+}
+
+.profile-body {
+  margin: 1rem 0;
+}
+
+.profile-body h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.profile-body p {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
+.profile-stats span {
+  cursor: pointer;
+  color: var(--color-primary);
+}
+
+.profile-stats span:hover {
+  text-decoration: underline;
+}
+
+.file-input {
+  display: none;
+}
+
+.change-image-button,
+.edit-profile-button {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.change-image-button {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.change-image-button:hover {
+  background-color: #16a34a;
+}
+
+.edit-profile-button {
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.edit-profile-button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.edit-input {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+textarea.edit-input {
+  height: 80px;
+  resize: none;
+}

@@ -1,0 +1,175 @@
+:root {
+  --color-white: hsl(252, 30%, 100%);
+  --color-light: hsl(252, 30%, 95%);
+  --color-gray: hsl(252, 15%, 65%);
+  --color-primary: hsl(252, 75%, 60%);
+  --color-secondary: hsl(252, 100%, 90%);
+  --color-success: hsl(120, 95%, 65%);
+  --color-danger: hsl(0, 95%, 65%);
+  --color-dark: hsl(252, 30%, 17%);
+  --color-black: hsl(252, 30%, 10%);
+
+  --border-radius: 2rem;
+  --card-border-radius: 1rem;
+  --btn-padding: 0.6rem 2rem;
+  --search-padding: 0.6rem 1rem;
+  --card-padding: 1rem;
+
+  --sticky-top-left: 5.4rem;
+  --sticky-top-right: -18rem;
+}
+
+
+/* Post update DELETE */
+.edit-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: absolute;
+  right: 23rem;
+  z-index: 10;
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+/*  */
+
+/* Bookmark page layout */
+.bookmark-page {
+  display: flex; /* Using flex for 2-column layout */
+  height: 100vh; /*Ensure it takes full height*/
+}
+
+/* Sidebar section */
+.bookmark-page .left {
+  width: 100px; /* Sidebar takes 20% width */
+  position: sticky;
+  top: 0; /* Keep it sticky at the top */
+  height: 100vh;
+  margin-left: 20px;
+  background-color: var(--color-light); /* Optional - for sidebar styling */
+}
+
+/* Right content section */
+.bookmark-page .right {
+  width: 90%; /* Content area takes 80% width */
+  padding: 1rem;
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  display: flex;
+  flex-direction: column;
+}
+.bookmark-container {
+  display: flex;
+  flex-wrap: wrap;
+  width: 80.9%;
+  margin: 0 auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem;
+  border-radius: var(--card-border-radius);
+  overflow: hidden; 
+}
+
+
+.bookmarks {
+  width: 80%;
+  margin: 0.8rem auto;
+  align-items: center;
+  
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--card-border-radius);
+  background: var(--color-white);
+}
+.book-list .photo {
+  width: 18.5rem;
+  height: 12.5rem;
+  border-radius: var(--card-border-radius);
+}
+
+.book-list .photo img {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--card-border-radius);
+  object-fit: cover;
+}
+
+/* Responsive styles */
+/* Tablet styles */
+@media screen and (max-width: 1024px) {
+  .bookmark-page .left {
+    width: 80px;
+    margin-left: 10px;
+  }
+  
+  .bookmark-container {
+    width: 90%;
+  }
+  
+  .book-list .photo {
+    width: 15rem;
+    height: 10rem;
+  }
+  
+  .bookmarks {
+    width: 90%;
+  }
+}
+
+/* Mobile styles */
+@media screen and (max-width: 600px) {
+  .bookmark-page {
+    flex-direction: column;
+    height: auto; /* Remove fixed height constraint for mobile */
+    overflow-y: initial; /* Reset any overflow settings */
+  }
+  
+  .bookmark-page .left {
+    width: 100%;
+    height: auto;
+    margin-left: 0;
+    position: relative;
+  }
+  
+  .bookmark-page .right {
+    width: 100%;
+    padding: 0 0 60px 0; /* Add bottom padding for sidebar */
+    overflow-y: visible; /* Reset overflow to allow main page scroll */
+    max-height: none; /* Remove max-height constraint */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .bookmark-container {
+    width: 100%;
+    justify-content: center;
+    overflow-y: visible;
+  }
+  
+  .book-list .photo {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    aspect-ratio: 3/2;
+  }
+  
+  /* Fix sidebar at bottom */
+  .bookmark-page .left .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+  }
+
+  .book {
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+/* Add base styles for the book container */
+.book {
+  min-height: 100vh;
+  position: relative;
+}

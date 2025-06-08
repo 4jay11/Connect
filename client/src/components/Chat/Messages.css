@@ -1,0 +1,147 @@
+/* Messages.css */
+.messages-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.msg-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.msg-left {
+  justify-content: flex-start;
+}
+
+.msg-right {
+  justify-content: flex-end;
+}
+
+.selector-checkbox {
+  cursor: pointer;
+}
+
+.dots-dropdown-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.three-dots-wrapper {
+  width: 28px;
+  height: 28px;
+  background-color: #e0e0e0;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.msg-container:hover .three-dots-wrapper {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.three-dots-wrapper:hover {
+  background-color: #d0d0d0;
+}
+
+.three-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.three-dots span {
+  width: 4px;
+  height: 4px;
+  background-color: #333;
+  border-radius: 50%;
+}
+
+.msg{
+  line-height: 1.5;
+  white-space: pre-wrap;
+  background-color: #fff;
+  padding: 10px 15px;
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-width: 350px;
+  word-break: break-word;
+}
+
+
+
+.msg.selected {
+  border: 2px solid #007bff;
+}
+
+.dropdown {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dropdown button {
+  padding: 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  width: 100%;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown button:hover {
+  background-color: #f0f0f0;
+}
+
+.delete-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ff3b30;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.delete-btn:hover {
+  background-color: #e32e24;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .msg {
+    max-width: 90%;
+  }
+
+  .delete-btn {
+    width: 90%;
+    left: 5%;
+    transform: none;
+  }
+}

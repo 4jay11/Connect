@@ -1,0 +1,55 @@
+/* FeedShimmer.css */
+.shimmer {
+  background: #f6f7f8;
+  position: relative;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  background: linear-gradient(to right, transparent 0%, #e0e0e0 50%, transparent 100%);
+  animation: shimmer 1.5s infinite;
+}
+
+/* Skeleton blocks */
+.shimmer-line {
+  height: 12px;
+  background: #ddd;
+  border-radius: 4px;
+  margin: 0.4rem 0;
+  width: 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.shimmer-line.short {
+  width: 60%;
+}
+
+.shimmer-line.thinner {
+  width: 30%;
+  height: 8px;
+}
+
+.shimmer-box {
+  height: 18rem;
+  background: #ddd;
+  border-radius: var(--card-border-radius);
+  margin: 0.7rem 0;
+  animation: shimmer 1.5s infinite;
+}
+
+.shimmer-circle {
+  width: 40px;
+  height: 40px;
+  background: #ddd;
+  border-radius: 50%;
+  animation: shimmer 1.5s infinite;
+}
+
+

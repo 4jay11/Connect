@@ -1,0 +1,254 @@
+/* ==========Left=============== */
+
+main .container .left{
+    height: max-content;
+    position: sticky;
+    top:var(--sticky-top-left)
+}
+
+main .container .left .profile-photo img{
+  border-radius: var(--border-radius);
+  height: 2.5rem;
+  width: 2.5rem;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid #ccc;
+}
+
+main .container .left .profile{
+    padding: var(--card-padding);
+    background: var(--color-white);
+    border-radius: var(--card-border-radius);
+    display: flex;
+    align-items: center;
+    column-gap: 1rem;
+    width: 100%;
+}
+
+/* ------------Sidebar----------------- */
+
+.left .sidebar{
+    margin-top:1rem ;
+    background: var(--color-white);
+    border-radius: var(--card-border-radius);
+}
+
+.left .sidebar .menu-item{
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    height: 4rem;    
+    cursor: pointer;
+    transition: all 300ms ease;
+    position: relative;
+}
+
+
+.left .sidebar .menu-item:hover{
+    background: var(--color-light);
+}
+
+.left .sidebar i{
+    font-size: 1.4rem;
+    color: var(--color-gray);
+    margin-left: 2rem;
+    position: relative;
+}
+
+.left .sidebar i .notification-count{
+    background: var(--color-danger);
+    color: white;
+    font-size: 0.7rem;
+    width: fit-content;
+    border-radius: 0.8rem;
+    padding: 0.1rem 0.4rem;
+    position: absolute;
+    top: -0.2rem;
+    right: -0.3rem;
+}
+
+.left .sidebar h3{
+    margin-left: 1.5rem;
+    font-size: 1rem;
+    color:black
+}
+
+.left .sidebar .active{
+    background: var(--color-light);
+}
+
+.left .sidebar .active i,
+.left .sidebar .active h3{
+    color: var(--color-primary);
+}
+
+.left .sidebar .active::before{
+    content: "";
+    display: block;
+    width: 0.5rem;
+    height: 100%;
+    position: absolute;
+    background: var(--color-primary);
+}
+
+.left .sidebar .menu-item:first-child.active{
+    border-top-left-radius: var(--card-border-radius);
+    overflow: hidden;
+}
+.left .sidebar .menu-item:last-child.active{
+    border-bottom-left-radius: var(--card-border-radius);
+    overflow: hidden;
+}
+
+.left .btn{
+    margin-top: 1rem;
+    width:100%;
+    text-align:center;
+    padding: 1rem 0;
+}
+
+/* ===========Notification popup============== */
+
+.left .notifications-popup{
+    position: absolute;
+    top: 0;
+    left: 110%;
+    width: 30rem;
+    background: var(--color-white);
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
+    box-shadow: 0 0 2rem hsl(var(--card-primary),75%,60%,25%);
+    z-index: 8;
+    display: none;
+}
+
+.left .notifications-popup::before{
+    content: "";
+    width: 1.2rem;
+    height: 1.2rem;
+    display: block;
+    background:var(--color-white);
+    position: absolute;
+    left: -0.6rem;
+    transform:rotate(45deg)
+}
+
+.left .notifications-popup > div{
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Mobile View - Convert Sidebar to Footer */
+@media (max-width: 768px) {
+    /* Reposition the left container */
+    main .container .left {
+        position: fixed;
+        width: 100%;
+    }
+    
+    /* Hide the profile section on mobile */
+    main .container .left .profile {
+        display: none;
+    }
+    
+    /* Hide the create post button on mobile */
+    main .container .left .btn {
+        display: none;
+    }
+    
+    /* Style the sidebar for mobile */
+    .left .sidebar {
+        margin: 0;
+        border-radius: 0;
+        display: flex;
+        justify-content: space-between;
+        box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: white;
+    }
+    
+    /* Style menu items for horizontal layout */
+    .left .sidebar .menu-item {
+        flex: 1;
+        height: 60px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+    
+    /* Adjust icon position */
+    .left .sidebar i {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+    
+    /* Adjust label style */
+    .left .sidebar h3 {
+        margin: 0.2rem 0 0 0;
+        font-size: 0.7rem;
+    }
+    
+    /* Change active indicator */
+    .left .sidebar .active::before {
+        width: 100%;
+        height: 3px;
+        top: 0;
+        left: 0;
+    }
+    
+    /* Reset border radius for active items */
+    .left .sidebar .menu-item:first-child.active,
+    .left .sidebar .menu-item:last-child.active {
+        border-radius: 0;
+    }
+    
+    /* Add padding to main content to prevent overlap */
+    main {
+        padding-bottom: 70px;
+    }
+}
+
+/* Responsive styles for sidebar in bookmarks and explore pages */
+@media (max-width: 600px) {
+  /* Style the sidebar for mobile in bookmark and explore pages */
+  .bookmark-page .left .sidebar {
+    margin: 0;
+    border-radius: 0;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    z-index: 1000;
+  }
+  
+  /* Style menu items for horizontal layout */
+  .bookmark-page .left .sidebar .menu-item {
+    flex: 1;
+    height: 60px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 0;
+  }
+  
+  /* Adjust icon position */
+  .bookmark-page .left .sidebar i {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  
+  /* Add padding to bottom of page content to prevent overlap with fixed sidebar */
+  .bookmark-page .right {
+    padding-bottom: 70px;
+  }
+}

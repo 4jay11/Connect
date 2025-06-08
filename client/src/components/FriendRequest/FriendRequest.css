@@ -1,0 +1,37 @@
+.right .gray{
+    background-color:rgba(87, 78, 78, 0.449);
+}
+
+.right .friend-requests{
+    margin-top: 1rem;
+}
+.right .friend-requests h4{
+    color: var(--color-gray);
+    margin: 1rem 0;
+}
+
+.right .request {
+    background-color: var(--color-white);
+    padding: var(--card-padding);
+    border-radius: var(--card-border-radius);
+    margin-bottom: 0.7rem;
+}
+.right .request .info{
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.right .request .action {
+    display: flex;
+    gap: 1rem;
+}
+
+.right .friend-requests .request .info .profile-photo img{
+  border-radius: var(--border-radius);
+  height: 2.5rem;
+  width: 2.5rem;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid #ccc;
+}

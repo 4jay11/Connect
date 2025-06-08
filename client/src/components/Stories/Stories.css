@@ -1,0 +1,119 @@
+/* Middle */
+
+/* Override swiper-slide default styles */
+.swiper-slide {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.middle .stories {
+  /* display: flex; */
+  /* justify-content: space-between; */
+  height: 12.5rem;
+  width: 6.8rem;
+  /* gap: 10rem; */
+}
+
+.middle .stories .story {
+  padding: var(--card-padding);
+  border-radius: var(--card-border-radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-white);
+  font-size: 0.75rem;
+  width: 100%;
+  height:200px;
+  position: relative;
+  overflow: hidden;
+  background-color: transparent;
+  border: none;            
+  box-shadow: none;         
+}
+
+.middle .stories .story::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 5rem;
+  background: linear-gradient(transparent, black);
+  position: absolute;
+  bottom: 0;
+}
+
+.middle .stories .story .name {
+  z-index: 2;
+}
+
+/* Profile Pic  */
+.stories .profile-pic {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--border-radius);
+  align-self: self-start;
+  border: 2px solid var(--color-primary); 
+  padding: 1px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.stories .profile-pic img {
+  border-radius: var(--border-radius);
+  height: 1.8rem;
+  width: 1.8rem;
+  object-fit: cover;
+  cursor: pointer;
+  border: none;
+}
+
+/* Swiper pagination */
+.swiper-pagination-bullet {
+  background-color: white !important;
+  opacity: 1 !important;
+}
+.swiper-pagination-bullet:hover {
+  background-color: #4070f4 !important;
+}
+
+/* Swiper navigation buttons */
+.swiper-button-prev,
+.swiper-button-next {
+  color: white !important;
+  font-size: 24px !important;
+  transition: 0.3s ease;
+}
+
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  color: #4070f4 !important;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+  .middle .stories {
+    height: 10rem;
+    width: 5.5rem;
+  }
+
+  .middle .stories .story {
+    height: 10rem;
+    font-size: 0.7rem;
+  }
+
+  .stories .profile-pic {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  .stories .profile-pic img {
+    height: 1.6rem;
+    width: 1.6rem;
+  }
+
+  .stories .name{
+    font-size: 0.6rem;
+  }
+}
