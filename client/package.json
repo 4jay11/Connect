@@ -23,9 +23,9 @@
     "react-router-dom": "^6.30.0",
     "react-scripts": "5.0.1",
     "react-slick": "^0.30.3",
+    "react-toastify": "^11.0.2",
     "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.8.1",
-    "react-toastify": "^11.0.2",
     "swiper": "^11.2.6",
     "web-vitals": "^2.1.4"
   },
@@ -52,5 +52,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   }
 }
