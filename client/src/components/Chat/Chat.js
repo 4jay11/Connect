@@ -34,7 +34,6 @@ const Chat = () => {
   const [showMenu, setShowMenu] = useState(false);
 
   const handleClearChat = () => {
-    console.log("Chat cleared!");
     setShowMenu(false);
   };
   const socketRef = useRef(null);
@@ -52,8 +51,6 @@ const Chat = () => {
           deleteForEveryone,
         },
       });
-
-      console.log("Delete response:", response.data);
 
       // Just remove from local state without re-fetching all messages
       setMessages((prevMessages) =>

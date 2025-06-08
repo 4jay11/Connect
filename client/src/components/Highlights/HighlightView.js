@@ -22,7 +22,7 @@ export default function HighlightView() {
   const handleStoryLike = async (id) => {
     try {
       const response = await axios.patch(
-        `http://localhost:8000/story/like/${id}`,
+        `${process.env.REACT_APP_API_URL}/story/like/${id}`,
         {},
         {
           withCredentials: true,
@@ -31,7 +31,6 @@ export default function HighlightView() {
           },
         }
       );
-      console.log(response.data);
     } catch (err) {
       console.log(err.message);
     }
@@ -41,7 +40,7 @@ export default function HighlightView() {
     try {
       // First fetch the user data
       const userResponse = await axios.get(
-        `http://localhost:8000/user/${userId}`,
+        `${process.env.REACT_APP_API_URL}/user/${userId}`,
         {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },
@@ -51,7 +50,7 @@ export default function HighlightView() {
 
       // Then fetch the highlights data
       const highlightsResponse = await axios.get(
-        `http://localhost:8000/highlight/user/${userId}`,
+        `${process.env.REACT_APP_API_URL}/highlight/user/${userId}`,
         {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },

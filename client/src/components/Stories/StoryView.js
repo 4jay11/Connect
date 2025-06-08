@@ -23,7 +23,7 @@ export default function StoryView() {
   const handleStoryLike = async (id) => {
     try {
       const response = await axios.patch(
-        `http://localhost:8000/story/like/${id}`,
+        `${process.env.REACT_APP_API_URL}/story/like/${id}`,
         {},
         {
           withCredentials: true,
@@ -32,7 +32,6 @@ export default function StoryView() {
           },
         }
       );
-      console.log(response.data);
     } catch (err) {
       console.log(err.message);
     }
@@ -49,10 +48,13 @@ export default function StoryView() {
 
   const fetchStories = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/story/getStories", {
-        withCredentials: true,
-        headers: { "Content-Type": "application/json" },
-      });
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/story/getStories`,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       setStories(res.data);
     } catch (err) {
       console.error("Error fetching Stories: " + err.message);

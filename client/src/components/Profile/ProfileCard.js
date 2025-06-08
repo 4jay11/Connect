@@ -34,8 +34,8 @@ const ProfileCard = ({ currentUser, posts }) => {
   const handleFollow = async () => {
     try {
       const response = await axios.post(
-        `http://localhost:8000/connection/request/${currentUser._id}`,
-        {}, 
+        `${process.env.REACT_APP_API_URL}/connection/request/${currentUser._id}`,
+        {},
         {
           withCredentials: true,
           headers: {
@@ -47,7 +47,7 @@ const ProfileCard = ({ currentUser, posts }) => {
         setFollowing((prev) => !prev);
         dispatch(updateFollowing(currentUser._id));
       }
-      console.log("Connection Request Sent:", response.data);
+      console.log("Connection Request Sent:");
     } catch (error) {
       console.error(
         "Error sending connection request:",

@@ -101,7 +101,7 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/register",
+        `${process.env.REACT_APP_API_URL}/register `,
         { username, email, password },
         {
           headers: { "Content-Type": "application/json" },

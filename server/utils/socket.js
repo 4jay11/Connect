@@ -12,14 +12,14 @@ const getSecretRoomId = (userId, targetUserId) => {
 const initializeSocket = (server) => {
   const io = socket(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: process.env.FRONTEND_URL,
     },
   });
 
   io.on("connection", (socket) => {
     socket.on("joinChat", ({ username, userId, targetUserId }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
-      console.log(username + " joined Room : " + roomId);
+
       socket.join(roomId);
     });
 

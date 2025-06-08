@@ -25,7 +25,6 @@ storyRouter.post("/addNewStory", userAuth, async (req, res) => {
       content,
       image,
     });
-    console.log(Stories);
     // Save the new story to the database
     await newStory.save();
     res.status(200).json({ message: "Story added successfully" });

@@ -19,8 +19,6 @@ const UploadPost = () => {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    console.log(user._id);
-    
     setUserId(user._id); // Example: Store userId in localStorage after login
   }, []);
 
@@ -98,7 +96,7 @@ const UploadPost = () => {
       const imageUrl = imgFile ? await uploadFile() : null;
 
       const res = await axios.post(
-        "http://localhost:8000/post/addNewPost",
+        `${process.env.REACT_APP_API_URL}/post/addNewPost`,
         {
           userId,
           content: summary,
@@ -111,7 +109,6 @@ const UploadPost = () => {
         }
       );
 
-      console.log("Backend response:", res.data);
       setMessage("Post added successfully");
 
       setImgFile(null);

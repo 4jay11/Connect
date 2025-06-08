@@ -19,15 +19,15 @@ const FriendRequests = ({
   const acceptRequest = async () => {
     try {
       const response = await axios.patch(
-        `http://localhost:8000/connection/request/accept/${requestid}`,
+        `${process.env.REACT_APP_API_URL}/connection/request/accept/${requestid}`,
         {},
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true, 
+          withCredentials: true,
         }
       );
 
-      console.log("Friend request accepted:", response.data);
+      console.log("Friend request accepted:");
       onRequestHandled(requestid);
     } catch (error) {
       console.error("Error accepting friend request:", error);
@@ -37,7 +37,7 @@ const FriendRequests = ({
   const declineRequest = async () => {
     try {
       const response = await axios.delete(
-        `http://localhost:8000/connection/${requestid}`,
+        `${process.env.REACT_APP_API_URL}/connection/${requestid}`,
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,

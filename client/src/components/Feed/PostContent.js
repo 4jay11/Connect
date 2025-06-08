@@ -180,13 +180,13 @@ const PostContent = ({
         )}
       </div>
 
-      <div
+      {/* <div
         className="comments text-muted"
         onClick={() => setShowHighlight(true)}
         style={{ cursor: "pointer" }}
       >
         View all comments
-      </div>
+      </div> */}
     </div>
   );
 };

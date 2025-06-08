@@ -18,7 +18,7 @@ const Explore = () => {
     const fetchExplore = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:8000/post/post-generator",
+          `${process.env.REACT_APP_API_URL}/post/post-generator`,
           {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
@@ -36,7 +36,7 @@ const Explore = () => {
   const handleLike = async (postId) => {
     try {
       const res = await axios.post(
-        `http://localhost:8000/post-reaction/like/${postId}`,
+        `${process.env.REACT_APP_API_URL}/post-reaction/like/${postId}`,
         {},
         {
           headers: { "Content-Type": "application/json" },
@@ -54,7 +54,7 @@ const Explore = () => {
   const handleBookmark = async (postId) => {
     try {
       const res = await axios.post(
-        `http://localhost:8000/post-reaction/bookmark/${postId}`,
+        `${process.env.REACT_APP_API_URL}/post-reaction/bookmark/${postId}`,
         {},
         {
           headers: { "Content-Type": "application/json" },

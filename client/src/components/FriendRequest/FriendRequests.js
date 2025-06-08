@@ -16,7 +16,7 @@ const FriendRequests = () => {
     const fetchFriendRequests = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:8000/connection/all-requests/",
+          `${process.env.REACT_APP_API_URL}/connection/all-requests/`,
           {
             headers: { "Content-Type": "application/json" },
             withCredentials: true,

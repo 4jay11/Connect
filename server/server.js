@@ -20,7 +20,7 @@ app.use(express.json());
 // Configure CORS
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow requests from frontend
+    origin: process.env.FRONTEND_URL , // Allow requests from frontend
     credentials: true, // Allow cookies and Authorization headers
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],

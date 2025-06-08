@@ -14,13 +14,12 @@ const Feeds = () => {
     const fetchPosts = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8000/post/post-generator",
+          `${process.env.REACT_APP_API_URL}/post/post-generator`,
           {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
           }
         );
-        console.log(res.data);
 
         setPosts(res.data);
         if (res.data.length >= 0) {
@@ -36,7 +35,7 @@ const Feeds = () => {
   const handleLike = async (postId) => {
     try {
       const res = await axios.post(
-        `http://localhost:8000/post-reaction/like/${postId}`,
+        `${process.env.REACT_APP_API_URL}/post-reaction/like/${postId}`,
         {},
         {
           headers: { "Content-Type": "application/json" },
@@ -52,7 +51,7 @@ const Feeds = () => {
   const handleBookmark = async (postId) => {
     try {
       const res = await axios.post(
-        `http://localhost:8000/post-reaction/bookmark/${postId}`,
+        `${process.env.REACT_APP_API_URL}/post-reaction/bookmark/${postId}`,
         {},
         {
           headers: { "Content-Type": "application/json" },

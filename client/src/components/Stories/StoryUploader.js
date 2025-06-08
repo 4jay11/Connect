@@ -60,7 +60,7 @@ const StoryUploader = () => {
       const imageUrl = await uploadFile();
 
       const res = await axios.post(
-        "http://localhost:8000/story/addNewStory",
+        `${process.env.REACT_APP_API_URL}/story/addNewStory`,
         {
           content,
           image: imageUrl,
@@ -71,7 +71,6 @@ const StoryUploader = () => {
         }
       );
 
-      console.log("Story created:", res.data);
       setMessage("Story added successfully");
 
       // Reset form

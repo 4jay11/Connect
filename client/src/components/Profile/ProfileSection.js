@@ -23,7 +23,7 @@ const ProfileSection = () => {
   const handlePostDelete = async (id) => {
     try {
       const res = await axios.delete(
-        `http://localhost:8000/post/deletePost/${id}`,
+        `${process.env.REACT_APP_API_URL}/post/deletePost/${id}`,
         {
           withCredentials: true,
           headers: {
@@ -42,7 +42,7 @@ const ProfileSection = () => {
   const handlePostEdit = async (id, text) => {
     try {
       const res = await axios.patch(
-        `http://localhost:8000/post/update/${id}`,
+        `${process.env.REACT_APP_API_URL}/post/update/${id}`,
         { caption: text },
         {
           withCredentials: true,
@@ -51,8 +51,6 @@ const ProfileSection = () => {
           },
         }
       );
-
-      console.log("Post updated:", res.data);
 
       // Update the post in the UI
       setPosts((prevPosts) =>
@@ -74,10 +72,13 @@ const ProfileSection = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/user/${id}`, {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        });
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/user/${id}`,
+          {
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
         setCurrentUser(response.data.user);
         setPosts(response.data.posts);
       } catch (err) {
@@ -88,7 +89,7 @@ const ProfileSection = () => {
     const fetchHighlights = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/highlight/user/${id}`,
+          `${process.env.REACT_APP_API_URL}/highlight/user/${id}`,
           {
             withCredentials: true,
             headers: { "Content-Type": "application/json" },
@@ -107,7 +108,7 @@ const ProfileSection = () => {
   const handleLike = async (postId) => {
     try {
       const res = await axios.post(
-        `http://localhost:8000/post-reaction/like/${postId}`,
+        `${process.env.REACT_APP_API_URL}/post-reaction/like/${postId}`,
         {},
         {
           headers: { "Content-Type": "application/json" },
@@ -126,7 +127,7 @@ const ProfileSection = () => {
   const handleBookmark = async (postId) => {
     try {
       const res = await axios.post(
-        `http://localhost:8000/post-reaction/bookmark/${postId}`,
+        `${process.env.REACT_APP_API_URL}/post-reaction/bookmark/${postId}`,
         {},
         {
           headers: { "Content-Type": "application/json" },

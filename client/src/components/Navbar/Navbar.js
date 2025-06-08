@@ -57,7 +57,7 @@ const Navbar = () => {
   const fetchUsers = async (searchTerm) => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/user/search?q=${searchTerm}`,
+        `${process.env.REACT_APP_API_URL}/user/search?q=${searchTerm}`,
         {
           withCredentials: true,
           headers: {
@@ -95,7 +95,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:8000/logout",
+        `${process.env.REACT_APP_API_URL}/logout`,
         {},
         { withCredentials: true }
       );

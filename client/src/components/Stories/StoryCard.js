@@ -61,7 +61,7 @@ export default function StoryCard({
     setIsLoadingHighlights(true);
     try {
       const response = await axios.get(
-        `http://localhost:8000/highlight/user/${currentUser._id}`,
+        `${process.env.REACT_APP_API_URL}/highlight/user/${currentUser._id}`,
         {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },
@@ -93,7 +93,7 @@ export default function StoryCard({
 
     try {
       await axios.delete(
-        `http://localhost:8000/story/deleteStory/${story._id}`,
+        `${process.env.REACT_APP_API_URL}/story/deleteStory/${story._id}`,
         {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },
@@ -134,7 +134,7 @@ export default function StoryCard({
 
     try {
       await axios.patch(
-        "http://localhost:8000/highlight/add-story",
+        `${process.env.REACT_APP_API_URL}/highlight/add-story`,
         {
           highlightId,
           storyId: story._id,
@@ -174,7 +174,7 @@ export default function StoryCard({
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/highlight/create",
+        `${process.env.REACT_APP_API_URL}/highlight/create`,
         {
           name: newHighlightName,
           storyId: story._id,

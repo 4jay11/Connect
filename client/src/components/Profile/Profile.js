@@ -69,7 +69,7 @@ const Profile = () => {
       formData.append("username", username);
 
       const res = await axios.patch(
-        `http://localhost:8000/user/update/${user._id}`,
+        `${process.env.REACT_APP_API_URL}/user/update/${user._id}`,
         formData,
         {
           withCredentials: true,
