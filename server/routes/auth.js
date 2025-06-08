@@ -55,7 +55,13 @@ authRouter.post("/login", async (req, res) => {
       expiresIn: "1d",
     });
 
-    res.cookie("token", token);
+    // res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true, // Only send over HTTPS
+      sameSite: "None", // Allows cross-site cookies
+    });
+
 
     res.json({ message: "Login successful", user  });
   } catch (error) {
@@ -65,7 +71,14 @@ authRouter.post("/login", async (req, res) => {
 
 // Logout Route
 authRouter.post("/logout", (req, res) => {
-  res.cookie("token", "", { expires: new Date(0) });
+  // res.cookie("token", "", { expires: new Date(0) });
+  res.cookie("token", "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+    expires: new Date(0),
+  });
+
   res.status(200).json({ message: "User logged out successfully" });
 });
 
