@@ -3,28 +3,14 @@ import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 import StickySidebar from "../Sidebar/StickySidebar";
 import BookmarkCard from "./BookmarkCard";
+import { fetchBookmarks } from "../../utils/fetch";
 import "./Bookmarks.css";
 
 const Bookmarks = () => {
   const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
 
   useEffect(() => {
-    const fetchBookmarks = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/user/bookmark`,
-          {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        setBookmarkedPosts(response.data.posts || []);
-      } catch (err) {
-        console.error("Error fetching bookmarks:", err.message);
-      }
-    };
-
-    fetchBookmarks();
+    fetchBookmarks(setBookmarkedPosts);
   }, []);
 
   return (

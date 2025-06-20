@@ -11,6 +11,9 @@ import ChatHeader from "./ChatHeader";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 
+import { fetchChatMessages, fetchChatMembers } from "../../utils/fetch";
+import { sendMessage } from "../../utils/post";
+
 const Chat = () => {
   const user = useSelector((state) => state.auth.user);
   const userId = user?._id;
@@ -21,8 +24,8 @@ const Chat = () => {
   const [initialLoad, setInitialLoad] = useState(true);
 
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [typing, setTyping] = useState(false);
+  // const [newMessage, setNewMessage] = useState("");
+  // const [typing, setTyping] = useState(false);
   const [isFriendTyping, setIsFriendTyping] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFriend, setActiveFriend] = useState(null);
@@ -82,46 +85,9 @@ const Chat = () => {
     }
   }, [selectedLeft, selectedRight]);
 
-  const fetchChatMembers = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/chat/members`, {
-        withCredentials: true,
-      });
-      setChatMembers(response.data);
-    } catch (error) {
-      console.error("Failed to fetch chat members:", error);
-      setChatMembers([]);
-    }
-  };
-
-  const fetchChatMessages = async (targetUserId) => {
-    try {
-      const res = await axios.get(`${BASE_URL}/chat/${targetUserId}`, {
-        withCredentials: true,
-      });
-
-      const chat = res.data;
-
-      const chatMessages = chat?.messages.map((msg) => ({
-        id: msg._id,
-        side: msg.senderId?._id === userId ? "msg-right" : "msg-left",
-        text: msg.text,
-        timestamp: msg.createdAt,
-        username: msg.senderId?.username,
-      }));
-
-      setMessages(chatMessages);
-
-      return chat;
-    } catch (error) {
-      console.error("Failed to fetch messages:", error);
-      setMessages([]);
-      return null;
-    }
-  };
 
   useEffect(() => {
-    fetchChatMembers();
+    fetchChatMembers(setChatMembers);
   }, [reloadChatMembers]);
 
   useEffect(() => {
@@ -133,9 +99,13 @@ const Chat = () => {
 
         if (friend) {
           setActiveFriend(friend);
-          fetchChatMessages(friend._id);
+          fetchChatMessages(friend._id, setMessages, userId);
         } else {
-          const chat = await fetchChatMessages(targetUserId);
+          const chat = await fetchChatMessages(
+            targetUserId,
+            setMessages,
+            userId
+          );
 
           // Extract the participant
           const otherUser = chat?.participants?.find(
@@ -187,35 +157,7 @@ const Chat = () => {
     };
   }, [userId, activeFriend?._id]);
 
-  const sendMessage = () => {
-    if (!newMessage.trim()) return;
-
-    const timestamp = new Date().toISOString();
-
-    socketRef.current?.emit("sendMessage", {
-      username: user.username,
-      userId,
-      targetUserId: activeFriend._id,
-      text: newMessage,
-      timestamp,
-    });
-
-    setNewMessage("");
-    setTyping(false);
-  };
-
-  const handleTyping = (e) => {
-    setNewMessage(e.target.value);
-    if (!typing) {
-      setTyping(true);
-      socketRef.current?.emit("typing", {
-        userId,
-        targetUserId: activeFriend._id,
-      });
-    }
-    clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => setTyping(false), 1000);
-  };
+ 
 
   const filteredFriends = chatMembers.filter((f) =>
     f?.username?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -288,7 +230,15 @@ const Chat = () => {
               activeFriend,
             }}
           />
-          <ChatInput {...{ newMessage, handleTyping, sendMessage }} />
+          <ChatInput
+            {...{
+              sendMessage,
+              activeFriend,
+              user,
+              socketRef,
+              typingTimeoutRef,
+            }}
+          />
         </div>
       )}
     </div>

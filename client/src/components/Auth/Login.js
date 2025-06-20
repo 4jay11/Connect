@@ -6,7 +6,7 @@ import { loginSuccess } from "../../redux/Slices/authSlice";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
 import { UilEye, UilEyeSlash } from "@iconscout/react-unicons";
-
+import { validateEmail, validatePassword } from "../../utils/auth";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,15 +28,6 @@ const Login = () => {
       navigate("/feed");
     }
   }, [isAuthenticated, navigate]);
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password) => {
-    return password.length >= 8;
-  };
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -106,10 +97,6 @@ const Login = () => {
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
     <div className="login-wrapper">
       <h1>Login</h1>
@@ -140,7 +127,7 @@ const Login = () => {
         <button
           type="button"
           className="password-toggle"
-          onClick={togglePasswordVisibility}
+          onClick={() => setShowPassword(!showPassword)}
         >
           {showPassword ? <UilEyeSlash /> : <UilEye />}
         </button>
@@ -153,7 +140,7 @@ const Login = () => {
           <input
             type="checkbox"
             checked={showPassword}
-            onChange={togglePasswordVisibility}
+            onChange={() => setShowPassword(!showPassword)}
           />
           Show Password
         </label>

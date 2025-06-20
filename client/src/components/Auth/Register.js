@@ -3,6 +3,7 @@ import axios from "axios";
 import "./Auth.css";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
+import { validateEmail, validatePassword, validateUsername } from "../../utils/auth";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -19,18 +20,6 @@ const Register = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password) => {
-    return password.length >= 8;
-  };
-
-  const validateUsername = (username) => {
-    return username.length >= 3;
-  };
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -126,6 +115,8 @@ const Register = () => {
       showToast(errorMessage, "error");
     }
   };
+
+  
 
   return (
     <div className="login-wrapper">

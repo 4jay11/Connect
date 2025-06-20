@@ -54,6 +54,20 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+
+  useEffect(() => {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="))
+      ?.split("=")[1];
+
+    if (!token) {
+      showToast("Session expired. Please login again.", "error");
+      dispatch(logout());
+      navigate("/login");
+    }
+  }, []);
+
   const fetchUsers = async (searchTerm) => {
     try {
       const res = await axios.get(
