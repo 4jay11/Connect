@@ -4,10 +4,44 @@ import ProfileCard from "./ProfileCard";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import FeedCard from "../Feed/FeedCard";
-import { FeedNavigationButton } from "../Feed/FeedPopup";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import "./ProfileSection.css";
+import { uploadFile } from "../../utils/post";  
+import {
+  getUserProfile,
+  getUserHighlights,
+  deletePost,
+  updatePost,
+} from "../../services";
+import { likePost, bookmarkPost } from "../../services/postApi";
+
+// Local FeedNavigationButton component
+const FeedNavigationButton = ({ direction = "left", onClick, children }) => {
+  const isLeft = direction === "left";
+
+  const style = {
+    position: "absolute",
+    height: "40px",
+    width: "40px",
+    top: "44%",
+    [isLeft ? "left" : "right"]: "10px",
+    transform: "translateY(-50%)",
+    zIndex: 10,
+    backgroundColor: "white",
+    border: "none",
+    borderRadius: "50%",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+    cursor: "pointer",
+    padding: "6px 0 0 0",
+  };
+
+  return (
+    <button onClick={onClick} style={style}>
+      {children}
+    </button>
+  );
+};
 
 const ProfileSection = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -22,16 +56,7 @@ const ProfileSection = () => {
 
   const handlePostDelete = async (id) => {
     try {
-      const res = await axios.delete(
-        `${process.env.REACT_APP_API_URL}/post/deletePost/${id}`,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      await deletePost(id);
       console.log("Post deleted successfully");
       setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
     } catch (err) {
@@ -41,17 +66,7 @@ const ProfileSection = () => {
 
   const handlePostEdit = async (id, text) => {
     try {
-      const res = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/post/update/${id}`,
-        { caption: text },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      await updatePost(id, text);
       // Update the post in the UI
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
@@ -72,15 +87,9 @@ const ProfileSection = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/user/${id}`,
-          {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        setCurrentUser(response.data.user);
-        setPosts(response.data.posts);
+        const response = await getUserProfile(id);
+        setCurrentUser(response.user);
+        setPosts(response.posts);
       } catch (err) {
         console.error("Error fetching user:", err.message);
       }
@@ -88,14 +97,8 @@ const ProfileSection = () => {
 
     const fetchHighlights = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/highlight/user/${id}`,
-          {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        setHighlights(response.data);
+        const highlights = await getUserHighlights(id);
+        setHighlights(highlights);
       } catch (err) {
         console.error("Error fetching highlights:", err.message);
       }
@@ -107,16 +110,8 @@ const ProfileSection = () => {
 
   const handleLike = async (postId) => {
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/post-reaction/like/${postId}`,
-        {},
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-
-      if (res.status === 200) {
+      const res = await likePost(postId);
+      if (res) {
         setRefreshTrigger((prev) => !prev);
       }
     } catch (error) {
@@ -126,16 +121,8 @@ const ProfileSection = () => {
 
   const handleBookmark = async (postId) => {
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/post-reaction/bookmark/${postId}`,
-        {},
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-
-      if (res.status === 200 || res.status === 201) {
+      const res = await bookmarkPost(postId);
+      if (res) {
         setRefreshTrigger((prev) => !prev);
       }
     } catch (error) {
@@ -217,55 +204,6 @@ const ProfileSection = () => {
               </div>
             </div>
           </div>
-
-          {/* Feed Popup Overlay */}
-          {showFeedPopup && selectedPost && (
-            <div className="feed-popup-overlay">
-              <div className="feed-popup-content">
-                <button
-                  className="close-btn"
-                  onClick={() => {
-                    setShowFeedPopup(false);
-                    setCurrentIndex(null);
-                  }}
-                >
-                  ✖
-                </button>
-
-                <FeedNavigationButton direction="left" onClick={handlePrev}>
-                  <FaArrowLeft />
-                </FeedNavigationButton>
-
-                <FeedCard
-                  key={selectedPost._id}
-                  user_id={currentUser?._id}
-                  post_id={selectedPost._id}
-                  profilePhoto={currentUser?.profilePicture || ""}
-                  username={currentUser?.username || "Unknown User"}
-                  location={selectedPost.location || "Unknown Location"}
-                  timeAgo={formatDistanceToNow(
-                    parseISO(selectedPost.createdAt),
-                    {
-                      addSuffix: true,
-                    }
-                  )}
-                  feedPhoto={selectedPost.image || ""}
-                  likedBy={selectedPost.likes || []}
-                  bookmarkBy={selectedPost.bookmarks || []}
-                  caption={selectedPost.content || "No caption"}
-                  onBookmark={handleBookmark}
-                  onLike={handleLike}
-                  editable={true}
-                  handlePostDelete={handlePostDelete}
-                  handlePostEdit={handlePostEdit}
-                />
-
-                <FeedNavigationButton direction="right" onClick={handleNext}>
-                  <FaArrowRight />
-                </FeedNavigationButton>
-              </div>
-            </div>
-          )}
         </>
       ) : (
         <p>Loading...</p>

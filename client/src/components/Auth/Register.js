@@ -1,9 +1,13 @@
 import React, { useRef, useState } from "react";
-import axios from "axios";
 import "./Auth.css";
 import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
-import { validateEmail, validatePassword, validateUsername } from "../../utils/auth";
+import {
+  validateEmail,
+  validatePassword,
+  validateUsername,
+} from "../../utils/auth";
+import { registerUser } from "../../services";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -19,7 +23,6 @@ const Register = () => {
   const passwordInputRef = useRef(null);
   const navigate = useNavigate();
   const { showToast } = useToast();
-
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -89,15 +92,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/register `,
-        { username, email, password },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-
+      await registerUser(username, email, password);
       showToast(
         "Registration successful! Please login to continue.",
         "success"
@@ -115,8 +110,6 @@ const Register = () => {
       showToast(errorMessage, "error");
     }
   };
-
-  
 
   return (
     <div className="login-wrapper">

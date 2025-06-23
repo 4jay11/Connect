@@ -9,6 +9,10 @@ import {
 import { BsThreeDots } from "react-icons/bs";
 import axios from "axios";
 import "./StoryCard.css";
+import { deleteStory, getUserHighlights } from "../../services";
+import { addStoryToHighlight, createHighlight } from "../../services/storyApi";
+import useClickOutside from "../../hooks/useClickOutside";
+
 export default function StoryCard({
   story,
   storyId,
@@ -32,42 +36,21 @@ export default function StoryCard({
   const dropdownRef = useRef(null);
   const highlightOptionsRef = useRef(null);
 
+  useClickOutside(dropdownRef, () => setShowDropdown(false));
+  useClickOutside(highlightOptionsRef, () => {
+    setShowHighlightOptions(false);
+    setShowCreateHighlight(false);
+  });
+
   useEffect(() => {
     setIsLiked(story?.likes?.includes(currentUser._id));
   }, [story?.likes, currentUser._id]);
 
-  useEffect(() => {
-    // Close dropdown when clicking outside
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-      if (
-        highlightOptionsRef.current &&
-        !highlightOptionsRef.current.contains(event.target)
-      ) {
-        setShowHighlightOptions(false);
-        setShowCreateHighlight(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   const fetchUserHighlights = async () => {
     setIsLoadingHighlights(true);
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/highlight/user/${currentUser._id}`,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      setHighlights(response.data);
+      const highlights = await getUserHighlights(currentUser._id);
+      setHighlights(highlights);
     } catch (error) {
       console.error("Error fetching highlights:", error);
     } finally {
@@ -92,13 +75,7 @@ export default function StoryCard({
     setIsDeleting(true);
 
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_API_URL}/story/deleteStory/${story._id}`,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      await deleteStory(story._id);
 
       // Call the parent component's onDeleteStory function to update UI
       if (onDeleteStory) {
@@ -133,19 +110,7 @@ export default function StoryCard({
     setAddToHighlightError("");
 
     try {
-      await axios.patch(
-        `${process.env.REACT_APP_API_URL}/highlight/add-story`,
-        {
-          highlightId,
-          storyId: story._id,
-        },
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      // Success message or UI update
+      await addStoryToHighlight(highlightId, story._id);
       setShowHighlightOptions(false);
     } catch (error) {
       console.error("Error adding to highlight:", error);
@@ -173,23 +138,12 @@ export default function StoryCard({
     setIsCreatingHighlight(true);
 
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/highlight/create`,
-        {
-          name: newHighlightName,
-          storyId: story._id,
-          coverImage: story.image,
-        },
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
+      const response = await createHighlight(
+        newHighlightName,
+        story._id,
+        story.image
       );
-
-      // Add the new highlight to the list
-      setHighlights([...highlights, response.data.highlight]);
-
-      // Reset form and close
+      setHighlights([...highlights, response.highlight]);
       setNewHighlightName("");
       setShowCreateHighlight(false);
       setShowHighlightOptions(false);

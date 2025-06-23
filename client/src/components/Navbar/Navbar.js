@@ -12,6 +12,8 @@ import debounce from "lodash.debounce";
 import axios from "axios";
 import "./Navbar.css";
 import { useToast } from "../../context/ToastContext";
+import { logoutUser, searchUsers } from "../../services";
+import useClickOutside from "../../hooks/useClickOutside";
 
 const Navbar = () => {
   const currentUser = useSelector((state) => state.auth.user);
@@ -27,33 +29,9 @@ const Navbar = () => {
   const profileMenuRef = useRef(null);
   const searchBarRef = useRef(null);
 
-  // Close menus when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        uploadMenuRef.current &&
-        !uploadMenuRef.current.contains(event.target)
-      ) {
-        setShowUploadMenu(false);
-      }
-      if (
-        profileMenuRef.current &&
-        !profileMenuRef.current.contains(event.target)
-      ) {
-        setShowProfileMenu(false);
-      }
-      if (
-        searchBarRef.current &&
-        !searchBarRef.current.contains(event.target)
-      ) {
-        setResults([]);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
+  useClickOutside(uploadMenuRef, () => setShowUploadMenu(false));
+  useClickOutside(profileMenuRef, () => setShowProfileMenu(false));
+  useClickOutside(searchBarRef, () => setResults([]));
 
   useEffect(() => {
     const token = document.cookie
@@ -70,16 +48,8 @@ const Navbar = () => {
 
   const fetchUsers = async (searchTerm) => {
     try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/user/search?q=${searchTerm}`,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setResults(res.data);
+      const results = await searchUsers(searchTerm);
+      setResults(results);
     } catch (err) {
       console.error("Search error:", err);
     }
@@ -108,15 +78,10 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/logout`,
-        {},
-        { withCredentials: true }
-      );
+      await logoutUser();
       showToast("Logged out successfully!", "success");
       dispatch(logout());
       navigate("/login");
-        
     } catch (error) {
       console.error("Logout failed:", error);
       showToast("Logout failed. Please try again.", "error");
@@ -145,7 +110,7 @@ const Navbar = () => {
         </h2>
 
         <div className="search-bar" ref={searchBarRef}>
-          <UilSearch  style={{ color: "#555" }} />
+          <UilSearch style={{ color: "#555" }} />
           <input
             type="search"
             value={query}

@@ -3,29 +3,34 @@ import { createSocketConnection } from "../../config/socket";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../../utils/constants";
-import "./Chat.css";
 import { useNavigate, useParams } from "react-router-dom";
 import ChatSidebar from "./ChatSidebar";
 import ChatFriendsList from "./ChatFriendList";
 import ChatHeader from "./ChatHeader";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
+import { FaPlusCircle } from "react-icons/fa";
 
-import { fetchChatMessages, fetchChatMembers } from "../../utils/fetch";
+import "./Chat.css";
+import "./EmptyChat.css";
+
+import { fetchChatMessages, fetchChatMembersForUI } from "../../utils/fetch";
+import { handleChat } from "../../utils/handle";
 import { sendMessage } from "../../utils/post";
+import { handledelete } from "../../utils/handle";
+import useWindowResize from "../../hooks/useWindowResize";
+import { getUserProfile } from "../../services/userApi";
 
 const Chat = () => {
   const user = useSelector((state) => state.auth.user);
   const userId = user?._id;
   const navigate = useNavigate();
   const { targetUserId } = useParams();
-  const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+  const isMobileView = useWindowResize();
   const [showChat, setShowChat] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
 
   const [messages, setMessages] = useState([]);
-  // const [newMessage, setNewMessage] = useState("");
-  // const [typing, setTyping] = useState(false);
   const [isFriendTyping, setIsFriendTyping] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFriend, setActiveFriend] = useState(null);
@@ -35,33 +40,17 @@ const Chat = () => {
   const [selectedRight, setSelectedRight] = useState([]);
   const [checkboxVisible, setCheckboxVisible] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showFollowingList, setShowFollowingList] = useState(false);
+  const [followingUsers, setFollowingUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleClearChat = () => {
-    setShowMenu(false);
-  };
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  const handledelete = async (id) => {
-    const deleteForEveryone = selectedLeft.length === 0;
-
+  const handleChatdelete = async (id) => {
     try {
-      const response = await axios.delete(`${BASE_URL}/deleteChats/${id}`, {
-        withCredentials: true,
-        data: {
-          messageIds: [...selectedLeft, ...selectedRight],
-          deleteForEveryone,
-        },
-      });
-
-      // Just remove from local state without re-fetching all messages
-      setMessages((prevMessages) =>
-        prevMessages.filter(
-          (msg) => ![...selectedLeft, ...selectedRight].includes(msg.id)
-        )
-      );
-
+      handledelete(id, selectedLeft, selectedRight, setMessages);
       setSelectedLeft([]);
       setSelectedRight([]);
     } catch (error) {
@@ -79,48 +68,88 @@ const Chat = () => {
     updater(updated);
   };
 
+  const fetchFollowingUsers = async () => {
+    if (!user?.following || user.following.length === 0) {
+      console.log("No following users found in Redux state:", user?.following);
+      return;
+    }
+
+    console.log("Following users from Redux:", user.following);
+    setIsLoading(true);
+    try {
+      const followingData = await Promise.all(
+        user.following.map(async (followingId) => {
+          if (!followingId) return null;
+
+          try {
+            console.log("Fetching user data for ID:", followingId);
+            const userData = await getUserProfile(followingId);
+            console.log("Received user data:", userData);
+
+            // Check for different possible response structures
+            // Some APIs return { user: {...} } instead of direct user object
+            const userObject = userData?.user || userData;
+
+            // Validate that we have a proper user object with at least an ID
+            if (userObject && userObject._id) {
+              return userObject;
+            }
+            return null;
+          } catch (error) {
+            console.error(`Error fetching user ${followingId}:`, error);
+            return null;
+          }
+        })
+      );
+
+      // Filter out null values and ensure we have valid user objects
+      const validUsers = followingData.filter(
+        (user) => user !== null && typeof user === "object"
+      );
+
+      console.log("Valid users after filtering:", validUsers);
+      setFollowingUsers(validUsers);
+    } catch (error) {
+      console.error("Error fetching following users:", error);
+      setFollowingUsers([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePlusIconClick = () => {
+    console.log("Current user from Redux:", user);
+    console.log("User following array:", user?.following);
+
+    // Fetch following users directly without the test code
+    setShowFollowingList(true);
+    fetchFollowingUsers();
+  };
+
+  const startNewChat = (selectedUser) => {
+    navigate(`/chat/${selectedUser._id}`);
+    setShowFollowingList(false);
+  };
+
   useEffect(() => {
     if (selectedLeft.length === 0 && selectedRight.length === 0) {
       setCheckboxVisible(false);
     }
   }, [selectedLeft, selectedRight]);
 
-
   useEffect(() => {
-    fetchChatMembers(setChatMembers);
+    fetchChatMembersForUI(setChatMembers);
   }, [reloadChatMembers]);
 
   useEffect(() => {
-    const handleChat = async () => {
-      if (targetUserId && chatMembers.length >= 0) {
-        const friend = chatMembers.find(
-          (member) => member._id === targetUserId
-        );
-
-        if (friend) {
-          setActiveFriend(friend);
-          fetchChatMessages(friend._id, setMessages, userId);
-        } else {
-          const chat = await fetchChatMessages(
-            targetUserId,
-            setMessages,
-            userId
-          );
-
-          // Extract the participant
-          const otherUser = chat?.participants?.find(
-            (user) => user._id !== userId
-          );
-
-          if (otherUser) {
-            setChatMembers((prev) => [...prev, otherUser]);
-            setActiveFriend(otherUser);
-          }
-        }
-      }
-    };
-
-    handleChat();
+    handleChat(
+      targetUserId,
+      chatMembers,
+      setActiveFriend,
+      setMessages,
+      setChatMembers,
+      userId
+    );
   }, [targetUserId, chatMembers]);
 
   useEffect(() => {
@@ -153,11 +182,9 @@ const Chat = () => {
     });
 
     return () => {
-      socket.disconnect(); // ✅ Clean up on unmount or re-run
+      socket.disconnect();
     };
   }, [userId, activeFriend?._id]);
-
- 
 
   const filteredFriends = chatMembers.filter((f) =>
     f?.username?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -166,15 +193,6 @@ const Chat = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   useEffect(() => {
     if (targetUserId) {
@@ -190,7 +208,6 @@ const Chat = () => {
       <div
         className={`chat-sidebar ${isMobileView && showChat ? "hidden" : ""}`}
       >
-        {/* <ChatSidebar /> */}
         <ChatFriendsList
           {...{
             filteredFriends,
@@ -204,7 +221,7 @@ const Chat = () => {
           }}
         />
       </div>
-      {(!initialLoad || targetUserId) && (
+      {!initialLoad || targetUserId ? (
         <div
           className={`chat-main ${isMobileView && showChat ? "active" : ""}`}
         >
@@ -212,10 +229,9 @@ const Chat = () => {
             {...{
               activeFriend,
               checkboxVisible,
-              handledelete,
+              handleChatdelete,
               showMenu,
               setShowMenu,
-              handleClearChat,
             }}
           />
           <ChatMessages
@@ -239,6 +255,71 @@ const Chat = () => {
               typingTimeoutRef,
             }}
           />
+        </div>
+      ) : (
+        <div className="empty-chat">
+          <FaPlusCircle className="plus-icon" onClick={handlePlusIconClick} />
+          <h3>No chat selected</h3>
+          <p>Select a conversation or start a new one</p>
+
+          {showFollowingList && (
+            <div className="following-list-modal">
+              <div className="following-list-content">
+                <div className="following-header">
+                  <h3>Start a new conversation</h3>
+                  <button
+                    className="close-following-btn"
+                    onClick={() => setShowFollowingList(false)}
+                  >
+                    &times;
+                  </button>
+                </div>
+                <div className="following-users">
+                  {isLoading ? (
+                    <div className="loading-spinner">Loading...</div>
+                  ) : followingUsers && followingUsers.length > 0 ? (
+                    followingUsers.map((followingUser) => (
+                      <div
+                        key={followingUser._id}
+                        className="following-user-item"
+                        onClick={() => startNewChat(followingUser)}
+                      >
+                        <div className="following-user-avatar">
+                          {followingUser.profilePicture ? (
+                            <img
+                              src={followingUser.profilePicture}
+                              alt={followingUser.username}
+                            />
+                          ) : (
+                            <div className="avatar-placeholder">
+                              {followingUser.username
+                                ? followingUser.username.charAt(0).toUpperCase()
+                                : "?"}
+                            </div>
+                          )}
+                        </div>
+                        <div className="following-user-info">
+                          <h4>{followingUser.username || "Unknown User"}</h4>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-following">
+                      <p>You are not following anyone yet.</p>
+                      <p className="debug-info">
+                        User ID: {userId || "Not available"}
+                        <br />
+                        Following array:{" "}
+                        {user?.following
+                          ? `${user.following.length} users`
+                          : "Not available"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

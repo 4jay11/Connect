@@ -10,6 +10,8 @@ import { EffectCoverflow, Navigation } from "swiper/modules";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import UserCard from "../Stories/UserCard";
+import { likeStory } from "../../services/storyApi";
+import { getUserProfile, getUserHighlights } from "../../services/userApi";
 
 export default function HighlightView() {
   const user = useSelector((state) => state.auth.user);
@@ -21,16 +23,7 @@ export default function HighlightView() {
 
   const handleStoryLike = async (id) => {
     try {
-      const response = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/story/like/${id}`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await likeStory(id);
     } catch (err) {
       console.log(err.message);
     }
@@ -39,24 +32,11 @@ export default function HighlightView() {
   const fetchHighlights = async () => {
     try {
       // First fetch the user data
-      const userResponse = await axios.get(
-        `${process.env.REACT_APP_API_URL}/user/${userId}`,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      setHighlightUser(userResponse.data.user);
-
+      const userData = await getUserProfile(userId);
+      setHighlightUser(userData.user);
       // Then fetch the highlights data
-      const highlightsResponse = await axios.get(
-        `${process.env.REACT_APP_API_URL}/highlight/user/${userId}`,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      setHighlights(highlightsResponse.data);
+      const highlightsData = await getUserHighlights(userId);
+      setHighlights(highlightsData);
     } catch (err) {
       console.error("Error fetching highlights:", err.message);
     }

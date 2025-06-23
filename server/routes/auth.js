@@ -57,9 +57,10 @@ authRouter.post("/login", async (req, res) => {
 
     // res.cookie("token", token);
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, // Only send over HTTPS
-      sameSite: "None", // Allows cross-site cookies
+      // httpOnly: true,
+      // secure: true, // Only send over HTTPS
+      // sameSite: "None", // Allows cross-site cookies
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
     });
 
 

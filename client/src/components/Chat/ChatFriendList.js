@@ -18,6 +18,7 @@ const ChatFriendsList = ({
   const handleBackToFeed = () => {
     navigate("/feed");
   };
+  console.log(filteredFriends);
   
   return (
     <div className="chat-sidebar">

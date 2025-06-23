@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useSelector } from "react-redux";
 import FriendRequestCard from "./FriendRequestCard";
 import "./FriendRequest.css";
+import { getAllFriendRequests } from "../../services/connectionApi";
 
 const FriendRequests = () => {
   const currentUser = useSelector((state) => state.auth.user);
@@ -15,14 +15,7 @@ const FriendRequests = () => {
 
     const fetchFriendRequests = async () => {
       try {
-        const { data } = await axios.get(
-          `${process.env.REACT_APP_API_URL}/connection/all-requests/`,
-          {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-          }
-        );
-
+        const data = await getAllFriendRequests();
         setFriendRequests(data || []);
       } catch (err) {
         console.error("Error fetching friend requests:", err);

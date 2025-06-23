@@ -7,6 +7,7 @@ import { loginSuccess } from "../../redux/Slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
 import axios from "axios";
+import { updateUserProfile } from "../../services";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -68,18 +69,11 @@ const Profile = () => {
       formData.append("name", name);
       formData.append("username", username);
 
-      const res = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/user/update/${user._id}`,
-        formData,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-      if (!res) showToast("Failed to update profile", "error");
+      const updatedUser = await updateUserProfile(user._id, formData);
+      if (!updatedUser) showToast("Failed to update profile", "error");
       showToast("Profile updated successfully!", "success");
-      dispatch(loginSuccess(res.data));
-      setCurrentuser(res.data);
+      dispatch(loginSuccess(updatedUser));
+      setCurrentuser(updatedUser);
       setIsEditing(false);
     } catch (err) {
       console.error("Update failed:", err);
@@ -115,10 +109,7 @@ const Profile = () => {
               </>
             )}
             <div className="action-buttons">
-              <button
-                onClick={handleback}
-                className="edit-profile-button"
-              >
+              <button onClick={handleback} className="edit-profile-button">
                 Back
               </button>
             </div>

@@ -4,7 +4,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
 import "./Stories.css";
 import ShimmerStory from "../ShimmerUI/StoryShimmer";
-import axios from "axios";
+import { getStories } from "../../services/storyApi";
 import StoryUpload from "./StoryUpload";
 
 const Stories = () => {
@@ -22,20 +22,14 @@ const Stories = () => {
     }
   }, []);
 
-  const getStories = async () => {
+  const fetchStoriesData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/story/getStories`,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      setStories(response.data);
+      const data = await getStories();
+      setStories(data);
 
       // Check if current user has a story
       if (currentUserId) {
-        const userHasStory = response.data.some(
+        const userHasStory = data.some(
           (story) => story.userId._id === currentUserId
         );
         setHasUserStory(userHasStory);
@@ -50,7 +44,7 @@ const Stories = () => {
 
   useEffect(() => {
     if (currentUserId) {
-      getStories();
+      fetchStoriesData();
     }
   }, [currentUserId]);
 

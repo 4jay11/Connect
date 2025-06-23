@@ -3,54 +3,26 @@ import "./UploadPost.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ThreeDots } from "react-loader-spinner";
-
+import useGeolocation from "../../hooks/useGeolocation";
+import { uploadFile } from "../../utils/post";
+import { createPost } from "../../services/postApi";
+import { useSelector } from "react-redux";
 const UploadPost = () => {
   const [summary, setSummary] = useState("");
   const [imgFile, setImgFile] = useState(null);
   const [imgPreview, setImgPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [location, setLocation] = useState("");
   const [userId, setUserId] = useState(null);
 
   const navigate = useNavigate();
+  const location = useGeolocation();
 
   // Fetch user ID (replace with actual authentication logic)
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    setUserId(user._id); // Example: Store userId in localStorage after login
-  }, []);
-
-  // Fetch User Location
-  useEffect(() => {
-    const fetchLocation = async () => {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            try {
-              const res = await axios.get(
-                `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-              );
-              const { city, principalSubdivision, countryName } = res.data;
-              setLocation(
-                city && principalSubdivision && countryName
-                  ? `${city}/${principalSubdivision}, ${countryName}`
-                  : "Location not available"
-              );
-            } catch (error) {
-              console.error("Error fetching location:", error);
-              setLocation("Error fetching location");
-            }
-          },
-          () => setLocation("Location access denied")
-        );
-      } else {
-        setLocation("Geolocation not supported");
-      }
-    };
-    fetchLocation();
+    setUserId(user._id);
   }, []);
 
   const handleImageChange = (e) => {
@@ -63,24 +35,24 @@ const UploadPost = () => {
     setSummary(e.target.value);
   };
 
-  const uploadFile = async () => {
-    if (!imgFile) return null; // Skip if no image selected
+  // const uploadFile = async () => {
+  //   if (!imgFile) return null; // Skip if no image selected
 
-    const data = new FormData();
-    data.append("file", imgFile);
-    data.append("upload_preset", "images_preset");
+  //   const data = new FormData();
+  //   data.append("file", imgFile);
+  //   data.append("upload_preset", "images_preset");
 
-    try {
-      const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-      const api = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  //   try {
+  //     const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+  //     const api = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 
-      const res = await axios.post(api, data);
-      return res.data.secure_url; // Return full Cloudinary URL
-    } catch (error) {
-      console.error("Cloudinary upload error:", error);
-      throw error;
-    }
-  };
+  //     const res = await axios.post(api, data);
+  //     return res.data.secure_url; // Return full Cloudinary URL
+  //   } catch (error) {
+  //     console.error("Cloudinary upload error:", error);
+  //     throw error;
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -93,24 +65,16 @@ const UploadPost = () => {
     setMessage("");
 
     try {
-      const imageUrl = imgFile ? await uploadFile() : null;
+      const imageUrl = imgFile ? await uploadFile(imgFile) : null;
 
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/post/addNewPost`,
-        {
-          userId,
-          content: summary,
-          image: imageUrl,
-          location,
-        },
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const res = createPost({
+        userId,
+        content: summary,
+        image: imageUrl,
+        location,
+      });
 
       setMessage("Post added successfully");
-
       setImgFile(null);
       setImgPreview(null);
       setSummary("");

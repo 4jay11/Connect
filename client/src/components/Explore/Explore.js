@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./Explore.css";
 import ExploreCard from "./ExploreCard";
-import axios from "axios";
 import Navbar from "../Navbar/Navbar";
 import StickySidebar from "../Sidebar/StickySidebar";
 import { useSelector } from "react-redux";
-import FeedPopup from "../Feed/FeedPopup";
+
+import { getFeedPosts, likePost, bookmarkPost } from "../../services";
 
 const Explore = () => {
   const currentUser = useSelector((state) => state.auth.user);
@@ -17,14 +17,8 @@ const Explore = () => {
   useEffect(() => {
     const fetchExplore = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/post/post-generator`,
-          {
-            withCredentials: true,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        setExplorePosts(response.data || []);
+        const data = await getFeedPosts();
+        setExplorePosts(data || []);
       } catch (err) {
         console.error("Error fetching Explore:", err.message);
       }
@@ -35,15 +29,8 @@ const Explore = () => {
 
   const handleLike = async (postId) => {
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/post-reaction/like/${postId}`,
-        {},
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-      if (res.status === 200 || res.status === 201) {
+      const res = await likePost(postId);
+      if (res) {
         setRefreshTrigger((prev) => !prev);
       }
     } catch (err) {
@@ -53,15 +40,8 @@ const Explore = () => {
 
   const handleBookmark = async (postId) => {
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/post-reaction/bookmark/${postId}`,
-        {},
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-      if (res.status === 200 || res.status === 201) {
+      const res = await bookmarkPost(postId);
+      if (res) {
         setRefreshTrigger((prev) => !prev);
       }
     } catch (err) {
@@ -98,19 +78,7 @@ const Explore = () => {
           </div>
         </div>
 
-        {showFeedPopup && (
-          <FeedPopup
-            posts={explorePosts}
-            currentIndex={currentIndex}
-            setCurrentIndex={setCurrentIndex}
-            onClose={() => {
-              setShowFeedPopup(false);
-              setCurrentIndex(null);
-            }}
-            onLike={handleLike}
-            onBookmark={handleBookmark}
-          />
-        )}
+        
       </div>
     </div>
   );

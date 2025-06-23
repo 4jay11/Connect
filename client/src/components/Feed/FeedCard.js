@@ -48,7 +48,7 @@ const FeedCard = (props) => {
     const fetchComments = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/post/comments/${post_id}`,
+          `http://localhost:8000/post/comments/${post_id}`,
           {
             withCredentials: true,
           }
@@ -62,10 +62,11 @@ const FeedCard = (props) => {
   }, [post_id]);
 
   const handleCommentSubmit = async (newComment) => {
+    console.log("newComment", newComment);
     if (!newComment.trim()) return;
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/post-reaction/comment/${post_id}`,
+        `http://localhost:8000/post-reaction/comment/${post_id}`,
         { text: newComment },
         { withCredentials: true }
       );
@@ -77,12 +78,9 @@ const FeedCard = (props) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_API_URL}/post-reaction/comment/${id}`,
-        {
-          withCredentials: true,
-        }
-      );
+      await axios.delete(`http://localhost:8000/post-reaction/comment/${id}`, {
+        withCredentials: true,
+      });
       setComments((prevComments) => prevComments.filter((c) => c._id !== id));
     } catch (err) {
       console.error("Failed to delete comment:", err.message);

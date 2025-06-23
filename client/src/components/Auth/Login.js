@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import "./Auth.css";
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "../../redux/Slices/authSlice";
@@ -7,6 +6,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useToast } from "../../context/ToastContext";
 import { UilEye, UilEyeSlash } from "@iconscout/react-unicons";
 import { validateEmail, validatePassword } from "../../utils/auth";
+import { loginUser } from "../../services";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,16 +65,8 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/login`,
-        { email, password },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-
-      dispatch(loginSuccess(response.data.user));
+      const data = await loginUser(email, password);
+      dispatch(loginSuccess(data.user));
       showToast("Login successful! Welcome back!", "success");
       navigate("/feed");
     } catch (err) {

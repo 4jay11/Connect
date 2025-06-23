@@ -7,7 +7,7 @@ import "swiper/css";
 import "swiper/css/effect-coverflow";
 import "swiper/css/navigation";
 import { EffectCoverflow, Navigation } from "swiper/modules";
-import axios from "axios";
+import { likeStory, getStories } from "../../services/storyApi";
 import { useSelector } from "react-redux";
 import UserCard from "./UserCard";
 
@@ -22,16 +22,7 @@ export default function StoryView() {
 
   const handleStoryLike = async (id) => {
     try {
-      const response = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/story/like/${id}`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await likeStory(id);
     } catch (err) {
       console.log(err.message);
     }
@@ -46,23 +37,17 @@ export default function StoryView() {
     }, {});
   };
 
-  const fetchStories = async () => {
+  const fetchStoriesData = async () => {
     try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/story/getStories`,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      setStories(res.data);
+      const data = await getStories();
+      setStories(data);
     } catch (err) {
       console.error("Error fetching Stories: " + err.message);
     }
   };
 
   useEffect(() => {
-    fetchStories();
+    fetchStoriesData();
   }, []);
 
   useEffect(() => {

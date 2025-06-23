@@ -6,15 +6,14 @@ import {
   UilEnvelopeAlt,
   UilBookmarkFull,
 } from "@iconscout/react-unicons";
-// import { assets } from "../../../../dummy/images/assets";
 import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 import { useSelector } from "react-redux";
 
 const Sidebar = () => {
-
   const currentUser = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
+
   const handleBookmark = () => {
     console.log("Bookmark clicked");
     navigate("/bookmark");

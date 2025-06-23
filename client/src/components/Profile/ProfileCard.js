@@ -8,10 +8,9 @@ import {
 } from "@iconscout/react-unicons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { updateFollowing } from "../../redux/Slices/authSlice";
-
+import { sendConnectionRequest } from "../../services/connectionApi";
 
 const ProfileCard = ({ currentUser, posts }) => {
   const navigate = useNavigate();
@@ -33,20 +32,9 @@ const ProfileCard = ({ currentUser, posts }) => {
 
   const handleFollow = async () => {
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/connection/request/${currentUser._id}`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.status == 200 || response.status == 201) {
-        setFollowing((prev) => !prev);
-        dispatch(updateFollowing(currentUser._id));
-      }
+      await sendConnectionRequest(currentUser._id);
+      setFollowing((prev) => !prev);
+      dispatch(updateFollowing(currentUser._id));
       console.log("Connection Request Sent:");
     } catch (error) {
       console.error(

@@ -1,6 +1,6 @@
 import React from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { acceptFriendRequest, declineFriendRequest } from "../../services";
 
 const FriendRequests = ({
   profilePhoto,
@@ -18,15 +18,7 @@ const FriendRequests = ({
 
   const acceptRequest = async () => {
     try {
-      const response = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/connection/request/accept/${requestid}`,
-        {},
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-
+      await acceptFriendRequest(requestid);
       console.log("Friend request accepted:");
       onRequestHandled(requestid);
     } catch (error) {
@@ -36,14 +28,8 @@ const FriendRequests = ({
 
   const declineRequest = async () => {
     try {
-      const response = await axios.delete(
-        `${process.env.REACT_APP_API_URL}/connection/${requestid}`,
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-      console.log("Friend request declined:", response.data);
+      await declineFriendRequest(requestid);
+      console.log("Friend request declined");
       onRequestHandled(requestid);
     } catch (error) {
       console.error("Error declining friend request:", error);
@@ -51,29 +37,21 @@ const FriendRequests = ({
   };
 
   return (
-    <div className="friend-requests">
-      <div className="request">
-        <div className="info">
-          <div className="profile-photo">
-            <img
-              onClick={handleProfileClick}
-              src={profilePhoto}
-              alt="Profile"
-            />
-          </div>
-          <div>
-            <h5>{username}</h5>
-            <p className="text-muted">{mutual} mutual friends</p>
-          </div>
+    <div className="friend-request-card">
+      <div className="friend-request-info" onClick={handleProfileClick}>
+        <img src={profilePhoto} alt={username} className="profile-photo" />
+        <div className="friend-request-details">
+          <h3>{username}</h3>
+          <p>{mutual} mutual friends</p>
         </div>
-        <div className="action">
-          <button className="btn btn-primary" onClick={acceptRequest}>
-            Accept
-          </button>
-          <button className="btn" onClick={declineRequest}>
-            Decline
-          </button>
-        </div>
+      </div>
+      <div className="friend-request-actions">
+        <button className="accept-btn" onClick={acceptRequest}>
+          Accept
+        </button>
+        <button className="decline-btn" onClick={declineRequest}>
+          Decline
+        </button>
       </div>
     </div>
   );

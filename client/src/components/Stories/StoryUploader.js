@@ -4,6 +4,7 @@ import axios from "axios";
 import { ThreeDots } from "react-loader-spinner";
 import { FaImage, FaCheck, FaTimes } from "react-icons/fa";
 import "./StoryUploader.css";
+import { addNewStory } from "../../services/storyApi";
 
 const StoryUploader = () => {
   const [content, setContent] = useState("");
@@ -58,27 +59,11 @@ const StoryUploader = () => {
 
     try {
       const imageUrl = await uploadFile();
-
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/story/addNewStory`,
-        {
-          content,
-          image: imageUrl,
-        },
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
+      await addNewStory(content, imageUrl);
       setMessage("Story added successfully");
-
-      // Reset form
       setImgFile(null);
       setImgPreview(null);
       setContent("");
-
-      // Redirect to feed after short delay
       setTimeout(() => {
         navigate("/feed");
       }, 1500);
