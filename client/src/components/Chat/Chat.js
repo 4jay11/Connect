@@ -29,7 +29,6 @@ const Chat = () => {
   const isMobileView = useWindowResize();
   const [showChat, setShowChat] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
-
   const [messages, setMessages] = useState([]);
   const [isFriendTyping, setIsFriendTyping] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -63,30 +62,47 @@ const Chat = () => {
     }
   };
 
-  const handleDeleteChat = async (targetUserId) => {
-    if (!targetUserId) return;
+  const handleDeleteChat = async (targetId) => {
+    if (!targetId) return;
 
     setConfirmationType("deleteChat");
     setShowConfirmation(true);
+
+    // Store the target user ID for deletion if it's not the active friend
+    if (targetId !== activeFriend?._id) {
+      sessionStorage.setItem("pendingDeleteUserId", targetId);
+    }
   };
 
   const handleConfirmDeleteChat = async () => {
     try {
-      if (!activeFriend?._id) {
-        console.error("No active friend selected");
+      // Check if we're deleting the active friend or another chat member
+      let userIdToDelete = activeFriend?._id;
+
+      // If we're deleting from the sidebar (not active chat)
+      const pendingDeleteId = sessionStorage.getItem("pendingDeleteUserId");
+      if (
+        pendingDeleteId &&
+        (!activeFriend || pendingDeleteId !== activeFriend._id)
+      ) {
+        userIdToDelete = pendingDeleteId;
+      }
+
+      if (!userIdToDelete) {
+        console.error("No user selected for deletion");
         return;
       }
 
-      console.log("Deleting chat with user:", activeFriend._id);
-      await deleteChat(activeFriend._id);
+      console.log("Deleting chat with user:", userIdToDelete);
+      await deleteChat(userIdToDelete);
 
       // Update local state to reflect the deletion
       setChatMembers((prevMembers) =>
-        prevMembers.filter((member) => member._id !== activeFriend._id)
+        prevMembers.filter((member) => member._id !== userIdToDelete)
       );
 
       // If we're viewing the deleted chat, navigate back to the main chat view
-      if (targetUserId === activeFriend._id) {
+      if (targetUserId === userIdToDelete) {
         setActiveFriend(null);
         setMessages([]);
         navigate("/chat");
@@ -94,8 +110,10 @@ const Chat = () => {
 
       setShowConfirmation(false);
       setReloadChatMembers((prev) => !prev); // Trigger reload of chat members
+      sessionStorage.removeItem("pendingDeleteUserId"); // Clear the pending delete ID
     } catch (error) {
       console.error("Error deleting chat:", error);
+      sessionStorage.removeItem("pendingDeleteUserId");
     }
   };
 
@@ -143,6 +161,7 @@ const Chat = () => {
 
   const handleCancelConfirmation = () => {
     setShowConfirmation(false);
+    sessionStorage.removeItem("pendingDeleteUserId");
   };
 
   const fetchFollowingUsers = async () => {
@@ -203,9 +222,18 @@ const Chat = () => {
     fetchFollowingUsers();
   };
 
-  const startNewChat = (selectedUser) => {
-    navigate(`/chat/${selectedUser._id}`);
-    setShowFollowingList(false);
+  const startNewChat = async (selectedUser) => {
+    try {
+      navigate(`/chat/${selectedUser._id}`);
+      // Make sure the active friend is set immediately
+      setActiveFriend(selectedUser);
+      setReloadChatMembers((prev) => !prev);
+      setShowFollowingList(false);
+      setShowChat(true);
+      setInitialLoad(false);
+    } catch (error) {
+      console.error("Error starting new chat:", error);
+    }
   };
 
   const handleSelectAll = () => {
@@ -256,7 +284,7 @@ const Chat = () => {
       setChatMembers,
       userId
     );
-  }, [targetUserId, chatMembers]);
+  }, [targetUserId, chatMembers, userId]);
 
   useEffect(() => {
     if (!userId || !activeFriend?._id) return;
@@ -290,7 +318,7 @@ const Chat = () => {
     return () => {
       socket.disconnect();
     };
-  }, [userId, activeFriend?._id]);
+  }, [userId, activeFriend?._id, user?.username]);
 
   const filteredFriends = chatMembers.filter((f) =>
     f?.username?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -308,6 +336,9 @@ const Chat = () => {
       setShowChat(false);
     }
   }, [targetUserId, isMobileView]);
+
+  // Determine if we should show the empty chat screen
+  const shouldShowEmptyChat = !activeFriend && (!initialLoad || !targetUserId);
 
   return (
     <div className="chat-wrapper">
@@ -328,7 +359,7 @@ const Chat = () => {
           handleDeleteChat={handleDeleteChat}
         />
       </div>
-      {!initialLoad || targetUserId ? (
+      {!shouldShowEmptyChat ? (
         <div
           className={`chat-main ${isMobileView && showChat ? "active" : ""}`}
         >
