@@ -12,6 +12,8 @@ import {
   FaEllipsisV,
   FaTimes,
   FaCheckDouble,
+  FaChevronDown,
+  FaSignOutAlt,
 } from "react-icons/fa";
 
 const ChatHeader = ({
@@ -25,19 +27,25 @@ const ChatHeader = ({
   handleSelectAll,
   showSelectMode,
   handleExitSelectMode,
+  handleDeleteChat,
 }) => {
   const navigate = useNavigate();
   const [showUserInfo, setShowUserInfo] = useState(false);
+  const [showUserOptions, setShowUserOptions] = useState(false);
   const dropdownRef = useRef(null);
   const menuRef = useRef(null);
   const menuDropdownRef = useRef(null);
+  const userOptionsRef = useRef(null);
+  const userInfoRef = useRef(null);
 
   const handleBack = () => {
     navigate("/chat");
   };
 
-  const handleProfileClick = () => {
+  const handleProfileClick = (e) => {
+    e.stopPropagation();
     setShowUserInfo(!showUserInfo);
+    setShowUserOptions(false);
   };
 
   const toggleMenu = (e) => {
@@ -46,9 +54,31 @@ const ChatHeader = ({
     setShowMenu((prev) => !prev);
   };
 
+  const toggleUserOptions = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowUserOptions((prev) => !prev);
+    setShowUserInfo(false);
+  };
+
+  const handleDeleteChatClick = () => {
+    handleDeleteChat(activeFriend._id);
+    setShowUserOptions(false);
+  };
+
+  const handleClearChatClick = () => {
+    handleClearChat();
+    setShowUserOptions(false);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        userInfoRef.current &&
+        !userInfoRef.current.contains(event.target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setShowUserInfo(false);
       }
 
@@ -59,6 +89,13 @@ const ChatHeader = ({
         !menuDropdownRef.current.contains(event.target)
       ) {
         setShowMenu(false);
+      }
+
+      if (
+        userOptionsRef.current &&
+        !userOptionsRef.current.contains(event.target)
+      ) {
+        setShowUserOptions(false);
       }
     };
 
@@ -74,7 +111,11 @@ const ChatHeader = ({
         <button className="back-button" onClick={handleBack}>
           <IoArrowBack />
         </button>
-        <div className="user-profile" onClick={handleProfileClick}>
+        <div
+          className="user-profile"
+          onClick={handleProfileClick}
+          ref={userInfoRef}
+        >
           <div className="header-avatar">
             {activeFriend?.profilePicture ? (
               <img
@@ -93,6 +134,28 @@ const ChatHeader = ({
               <FaCheckCircle className="verified-icon" />
             </div>
             <span className="user-status">Online</span>
+          </div>
+          <div
+            className="user-options-button"
+            onClick={toggleUserOptions}
+            ref={userOptionsRef}
+          >
+            <FaChevronDown
+              className={`chevron-icon ${showUserOptions ? "rotated" : ""}`}
+            />
+
+            {showUserOptions && (
+              <div className="user-options-dropdown">
+                <div className="option-item" onClick={handleClearChatClick}>
+                  <FaTrash className="option-icon" />
+                  <span>Clear Chat</span>
+                </div>
+                <div className="option-item" onClick={handleDeleteChatClick}>
+                  <FaSignOutAlt className="option-icon" />
+                  <span>Delete Chat</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

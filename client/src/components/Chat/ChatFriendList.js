@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaChevronDown, FaTrash, FaSignOutAlt } from "react-icons/fa";
 import "./Chat.css";
 
 const ChatFriendsList = ({
@@ -14,13 +14,47 @@ const ChatFriendsList = ({
   setCheckboxVisible,
   setSearchQuery,
   handlePlusIconClick,
+  handleClearChat,
+  handleDeleteChat,
 }) => {
   const navigate = useNavigate();
+  const [activeDropdownId, setActiveDropdownId] = useState(null);
+  const dropdownRef = useRef(null);
 
   const handleBackToFeed = () => {
     navigate("/feed");
   };
-  console.log(filteredFriends);
+
+  const handleClearChatClick = (e, friend) => {
+    e.stopPropagation();
+    setActiveFriend(friend);
+    handleClearChat();
+    setActiveDropdownId(null);
+  };
+
+  const handleDeleteChatClick = (e, friendId) => {
+    e.stopPropagation();
+    handleDeleteChat(friendId);
+    setActiveDropdownId(null);
+  };
+
+  const toggleDropdown = (e, friendId) => {
+    e.stopPropagation();
+    setActiveDropdownId(activeDropdownId === friendId ? null : friendId);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveDropdownId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="chat-sidebar">
@@ -43,7 +77,7 @@ const ChatFriendsList = ({
         className="chat-search"
         onChange={(e) => setSearchQuery(e.target.value)}
       />
-      <div className="friends-list">
+      <div className="friends-list" ref={dropdownRef}>
         {filteredFriends.map((friend) => (
           <div
             key={friend._id}
@@ -69,6 +103,34 @@ const ChatFriendsList = ({
             <div className="friend-info">
               <span className="friend-name">{friend.username}</span>
               <span className="friend-status">Online</span>
+            </div>
+            <div
+              className="friend-options"
+              onClick={(e) => toggleDropdown(e, friend._id)}
+            >
+              <FaChevronDown
+                className={`friend-chevron ${
+                  activeDropdownId === friend._id ? "rotated" : ""
+                }`}
+              />
+              {activeDropdownId === friend._id && (
+                <div className="friend-dropdown">
+                  <div
+                    className="friend-dropdown-item"
+                    onClick={(e) => handleClearChatClick(e, friend)}
+                  >
+                    <FaTrash className="dropdown-icon" />
+                    <span>Clear Chat</span>
+                  </div>
+                  <div
+                    className="friend-dropdown-item"
+                    onClick={(e) => handleDeleteChatClick(e, friend._id)}
+                  >
+                    <FaSignOutAlt className="dropdown-icon" />
+                    <span>Delete Chat</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

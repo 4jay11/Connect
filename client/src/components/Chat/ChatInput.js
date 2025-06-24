@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import EmojiPicker from "emoji-picker-react";
 import { FaSmile, FaPaperPlane } from "react-icons/fa";
 
@@ -12,7 +12,23 @@ const ChatInput = ({
   const [typing, setTyping] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const emojiPickerRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+
+    return () => {
+      window.removeEventListener("resize", checkIfMobile);
+    };
+  }, []);
 
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
@@ -46,23 +62,36 @@ const ChatInput = ({
   };
 
   const handleEmojiClick = (emojiObject) => {
-    setNewMessage((prevMsg) => prevMsg + emojiObject.emoji);
+    const emoji = emojiObject.emoji;
+    const cursor = inputRef.current.selectionStart;
+    const text = newMessage.slice(0, cursor) + emoji + newMessage.slice(cursor);
+    setNewMessage(text);
+
+    // Focus back on input after selecting emoji (for mobile especially)
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        const newCursorPos = cursor + emoji.length;
+        inputRef.current.setSelectionRange(newCursorPos, newCursorPos);
+      }
+    }, 10);
   };
 
   // Close emoji picker when clicking outside
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        emojiPickerRef.current &&
-        !emojiPickerRef.current.contains(event.target)
-      ) {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
         setShowEmojiPicker(false);
       }
     };
 
+    // For mobile, add touchstart event to handle taps
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, []);
 
@@ -77,12 +106,20 @@ const ChatInput = ({
           <FaSmile />
         </button>
         {showEmojiPicker && (
-          <div className="emoji-picker-container" ref={emojiPickerRef}>
-            <EmojiPicker onEmojiClick={handleEmojiClick} />
+          <div
+            className={`emoji-picker-container ${isMobile ? "mobile" : ""}`}
+            ref={emojiPickerRef}
+          >
+            <EmojiPicker
+              onEmojiClick={handleEmojiClick}
+              width={isMobile ? 280 : 320}
+              height={isMobile ? 340 : 400}
+            />
           </div>
         )}
       </div>
       <input
+        ref={inputRef}
         value={newMessage}
         onChange={handleTyping}
         onKeyDown={handleKeyDown}

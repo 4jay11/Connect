@@ -19,6 +19,7 @@ import { sendMessage } from "../../utils/post";
 import { handledelete } from "../../utils/handle";
 import useWindowResize from "../../hooks/useWindowResize";
 import { getUserProfile } from "../../services/userApi";
+import { deleteChat } from "../../services/chatApi";
 
 const Chat = () => {
   const user = useSelector((state) => state.auth.user);
@@ -59,6 +60,42 @@ const Chat = () => {
       setCheckboxVisible(false);
     } catch (error) {
       console.error("Error deleting chats:", error);
+    }
+  };
+
+  const handleDeleteChat = async (targetUserId) => {
+    if (!targetUserId) return;
+
+    setConfirmationType("deleteChat");
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmDeleteChat = async () => {
+    try {
+      if (!activeFriend?._id) {
+        console.error("No active friend selected");
+        return;
+      }
+
+      console.log("Deleting chat with user:", activeFriend._id);
+      await deleteChat(activeFriend._id);
+
+      // Update local state to reflect the deletion
+      setChatMembers((prevMembers) =>
+        prevMembers.filter((member) => member._id !== activeFriend._id)
+      );
+
+      // If we're viewing the deleted chat, navigate back to the main chat view
+      if (targetUserId === activeFriend._id) {
+        setActiveFriend(null);
+        setMessages([]);
+        navigate("/chat");
+      }
+
+      setShowConfirmation(false);
+      setReloadChatMembers((prev) => !prev); // Trigger reload of chat members
+    } catch (error) {
+      console.error("Error deleting chat:", error);
     }
   };
 
@@ -278,17 +315,17 @@ const Chat = () => {
         className={`chat-sidebar ${isMobileView && showChat ? "hidden" : ""}`}
       >
         <ChatFriendsList
-          {...{
-            filteredFriends,
-            targetUserId,
-            setActiveFriend,
-            setSearchQuery,
-            setMessages,
-            setSelectedLeft,
-            setSelectedRight,
-            setCheckboxVisible,
-            handlePlusIconClick,
-          }}
+          filteredFriends={filteredFriends}
+          targetUserId={targetUserId}
+          setActiveFriend={setActiveFriend}
+          setMessages={setMessages}
+          setSelectedLeft={setSelectedLeft}
+          setSelectedRight={setSelectedRight}
+          setCheckboxVisible={setCheckboxVisible}
+          setSearchQuery={setSearchQuery}
+          handlePlusIconClick={handlePlusIconClick}
+          handleClearChat={handleClearChat}
+          handleDeleteChat={handleDeleteChat}
         />
       </div>
       {!initialLoad || targetUserId ? (
@@ -310,6 +347,7 @@ const Chat = () => {
               handleSelectAll,
               showSelectMode,
               handleExitSelectMode,
+              handleDeleteChat,
             }}
           />
           <ChatMessages
@@ -409,15 +447,19 @@ const Chat = () => {
       {showConfirmation && (
         <div className="confirmation-modal">
           <div className="confirmation-content">
-            <div className="confirmation-title">
+            <h3 className="confirmation-title">
               {confirmationType === "clearChat"
                 ? "Clear Chat"
-                : "Delete Selected Messages"}
-            </div>
+                : confirmationType === "deleteMessages"
+                ? "Delete Selected Messages"
+                : "Delete Chat"}
+            </h3>
             <p>
               {confirmationType === "clearChat"
-                ? "Are you sure you want to clear all messages in this chat? This action cannot be undone."
-                : "Are you sure you want to delete the selected messages? This action cannot be undone."}
+                ? "Are you sure you want to clear all messages? This action cannot be undone."
+                : confirmationType === "deleteMessages"
+                ? "Are you sure you want to delete the selected messages? This action cannot be undone."
+                : "Are you sure you want to delete this chat? This will remove the entire conversation and cannot be undone."}
             </p>
             <div className="confirmation-buttons">
               <button className="cancel-btn" onClick={handleCancelConfirmation}>
@@ -428,10 +470,16 @@ const Chat = () => {
                 onClick={
                   confirmationType === "clearChat"
                     ? handleConfirmClearChat
-                    : handleConfirmDeleteMessages
+                    : confirmationType === "deleteMessages"
+                    ? handleConfirmDeleteMessages
+                    : handleConfirmDeleteChat
                 }
               >
-                Confirm
+                {confirmationType === "clearChat"
+                  ? "Clear"
+                  : confirmationType === "deleteMessages"
+                  ? "Delete"
+                  : "Delete Chat"}
               </button>
             </div>
           </div>

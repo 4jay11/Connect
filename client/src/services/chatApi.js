@@ -25,6 +25,14 @@ export const deleteChatMessages = async (
   return response.data;
 };
 
+// Delete entire chat with a user
+export const deleteChat = async (targetUserId) => {
+  const response = await axios.delete(`${BASE_URL}/chat/${targetUserId}`, {
+    withCredentials: true
+  });
+  return response.data;
+};
+
 // Fetch chat members
 export const fetchChatMembers = async () => {
   const response = await axios.get(`${BASE_URL}/chat/members`, {

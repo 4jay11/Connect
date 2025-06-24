@@ -96,7 +96,7 @@
 .friends-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   overflow-y: auto;
   flex: 1;
   padding-right: 10px;
@@ -124,27 +124,34 @@
 .friend {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 7px;
-  border-radius: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
   cursor: pointer;
-  transition: background-color 0.2s;
-  background-color: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  flex-shrink: 0;
+  position: relative;
+  margin: 0;
+  border: 1px solid transparent;
 }
 
-.friend:hover,
+.friend:hover {
+  background-color: #f0f2f5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: #e4e6eb;
+}
+
 .friend.active {
-  background-color: #e0e7ff;
+  background-color: #e7f3ff;
+  border-color: #1877f2;
+  box-shadow: 0 2px 8px rgba(24, 119, 242, 0.15);
 }
 
 .friend-avatar {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+  margin-right: 6px;
+  position: relative;
   overflow: hidden;
-  flex-shrink: 0;
 }
 
 .friend-avatar img {
@@ -166,24 +173,95 @@
 }
 
 .friend-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
 }
 
 .friend-name {
   font-weight: 600;
+  font-size: 15px;
   color: #1c1e21;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: 2px;
 }
 
 .friend-status {
   font-size: 12px;
   color: #65676b;
+}
+
+.friend-options {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  position: relative;
+  margin-left: 5px;
+  opacity: 0;
+  background-color: transparent;
+}
+
+.friend:hover .friend-options {
+  opacity: 1;
+}
+
+.friend-options:hover {
+  background-color: #e4e6eb;
+}
+
+.friend-chevron {
+  color: #65676b;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.friend-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.friend-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+  width: 160px;
+  border: 1px solid #e4e6eb;
+}
+
+.friend-dropdown-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #f0f2f5;
+  color: #1c1e21;
+  font-size: 12px;
+}
+
+.friend-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.friend-dropdown-item:hover {
+  background-color: #e7f3ff;
+  color: #1877f2;
+}
+
+.dropdown-icon {
+  font-size: 12px;
+  color: #65676b;
+  width: 14px;
+  height: 14px;
 }
 
 .chat-main {
@@ -209,14 +287,94 @@
 .header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   cursor: pointer;
 }
 
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 12px;
+  cursor: pointer;
+  padding: 5px 5px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  position: relative;
+  border: 1px solid transparent;
+  gap: 5px;
+}
+
+.user-profile:hover {
+  background-color: #f0f2f5;
+}
+
+.user-options-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  position: relative;
+  background-color: transparent;
+}
+
+.user-options-button:hover {
+  background-color: #e4e6eb;
+}
+
+.chevron-icon {
+  color: #65676b;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.user-options-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+  width: 160px;
+  border: 1px solid #e4e6eb;
+}
+
+.option-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #f0f2f5;
+  color: #1c1e21;
+  font-size: 13px;
+}
+
+.option-item:last-child {
+  border-bottom: none;
+}
+
+.option-item:hover {
+  background-color: #e7f3ff;
+  color: #1877f2;
+}
+
+.option-icon {
+  font-size: 12px;
+  color: #65676b;
+  width: 16px;
+  height: 16px;
 }
 
 .header-avatar {
@@ -225,6 +383,7 @@
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  margin-right: 6px;
 }
 
 .header-avatar img {
@@ -236,13 +395,13 @@
 .user-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
 }
 
 .user-name {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
   font-size: 16px;
   color: #1c1e21;
 }
@@ -265,23 +424,11 @@
   transform: translateX(-50%);
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-top: 8px;
   z-index: 1000;
   overflow: hidden;
   width: 300px;
-  animation: slideDown 0.2s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -10px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
 }
 
 .dropdown-header {
@@ -412,21 +559,11 @@
   right: 0;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   overflow: hidden;
   width: 180px;
-  animation: fadeIn 0.2s ease-out;
   transform-origin: top right;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 .menu-item {
@@ -445,7 +582,7 @@
 }
 
 .menu-item:hover {
-  background-color: #f0f2f5;
+  background-color: #e7f3ff;
   color: #1877f2;
 }
 
@@ -586,7 +723,7 @@
 
 .emoji-picker-container {
   position: absolute;
-  bottom: 40px;
+  bottom: 45px;
   left: -50px;
   z-index: 1000;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
@@ -594,6 +731,12 @@
   overflow: hidden;
   transform: scale(0.9);
   transform-origin: bottom left;
+}
+
+/* This ensures the emoji picker doesn't extend beyond screen bounds */
+.emoji-picker-container [data-theme] {
+  max-width: 100vw;
+  max-height: 50vh;
 }
 
 .chat-input {
@@ -735,17 +878,35 @@
   }
 
   .friend {
-    padding: 5px;
+    padding: 4px 5px;
+    margin: 0;
+  }
+  
+  .friends-list {
+    gap: 0;
   }
 
   .friend-avatar {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
+    margin-right: 4px;
   }
 
   .header-avatar {
     width: 36px;
     height: 36px;
+  }
+  
+  .header-left {
+    gap: 1px;
+  }
+  
+  .user-info {
+    gap: 0;
+  }
+  
+  .user-name {
+    gap: 2px;
   }
 
   .user-name {
@@ -799,6 +960,51 @@
   
   .menu-text {
     font-size: 13px;
+  }
+
+  .emoji-picker-container {
+    left: -40px;
+    bottom: 40px;
+    transform: scale(0.85);
+  }
+  
+  /* Control the emoji picker size on mobile */
+  .emoji-picker-container [data-theme] {
+    max-width: 90vw !important;
+    max-height: 40vh !important;
+  }
+
+  .user-profile {
+    padding: 4px 2px;
+    gap: 3px;
+  }
+  
+  .user-options-button {
+    width: 24px;
+    height: 24px;
+    margin-left: 6px;
+  }
+  
+  .user-options-dropdown {
+    width: 140px;
+  }
+  
+  .option-item {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .option-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .emoji-picker-container {
+    left: -70px;
+    bottom: 40px;
+    transform: scale(0.75);
   }
 }
 
@@ -953,6 +1159,28 @@
 
 .confirm-btn:hover {
   background-color: #166fe5;
+}
+
+/* Mobile emoji picker styles */
+.emoji-picker-container.mobile {
+  position: fixed;
+  left: 50% !important;
+  bottom: auto;
+  top: 50%;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1010;
+}
+
+/* Create an overlay when emoji picker is shown on mobile */
+.emoji-picker-container.mobile::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
 }
 
 
