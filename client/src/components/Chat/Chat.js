@@ -4,12 +4,11 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../../utils/constants";
 import { useNavigate, useParams } from "react-router-dom";
-import ChatSidebar from "./ChatSidebar";
 import ChatFriendsList from "./ChatFriendList";
 import ChatHeader from "./ChatHeader";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
-import { FaPlusCircle } from "react-icons/fa";
+import EmptyChat from "./EmptyChat";
 
 import "./Chat.css";
 import "./EmptyChat.css";
@@ -43,6 +42,9 @@ const Chat = () => {
   const [showFollowingList, setShowFollowingList] = useState(false);
   const [followingUsers, setFollowingUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationType, setConfirmationType] = useState("");
+  const [showSelectMode, setShowSelectMode] = useState(false);
 
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -53,6 +55,8 @@ const Chat = () => {
       handledelete(id, selectedLeft, selectedRight, setMessages);
       setSelectedLeft([]);
       setSelectedRight([]);
+      setShowSelectMode(false);
+      setCheckboxVisible(false);
     } catch (error) {
       console.error("Error deleting chats:", error);
     }
@@ -66,6 +70,42 @@ const Chat = () => {
       ? selectedArray.filter((item) => item !== id)
       : [...selectedArray, id];
     updater(updated);
+  };
+
+  const handleSelectMessages = () => {
+    setShowSelectMode(true);
+    setCheckboxVisible(true);
+    setSelectedLeft([]);
+    setSelectedRight([]);
+    setShowMenu(false);
+  };
+
+  const handleClearChat = () => {
+    setConfirmationType("clearChat");
+    setShowConfirmation(true);
+    setShowMenu(false);
+  };
+
+  const handleConfirmClearChat = async () => {
+    try {
+      // Clear all messages for this chat
+      setMessages([]);
+      // Here you would typically also make an API call to clear messages in the backend
+      // For example: await axios.delete(`${BASE_URL}/api/chat/${activeFriend._id}/clear`);
+
+      setShowConfirmation(false);
+    } catch (error) {
+      console.error("Error clearing chat:", error);
+    }
+  };
+
+  const handleConfirmDeleteMessages = () => {
+    handleChatdelete(activeFriend?._id);
+    setShowConfirmation(false);
+  };
+
+  const handleCancelConfirmation = () => {
+    setShowConfirmation(false);
   };
 
   const fetchFollowingUsers = async () => {
@@ -131,11 +171,40 @@ const Chat = () => {
     setShowFollowingList(false);
   };
 
+  const handleSelectAll = () => {
+    // Select all messages
+    const leftIds = messages
+      .filter((msg) => msg.side === "msg-left")
+      .map((msg) => msg.id);
+
+    const rightIds = messages
+      .filter((msg) => msg.side === "msg-right")
+      .map((msg) => msg.id);
+
+    setSelectedLeft(leftIds);
+    setSelectedRight(rightIds);
+    setShowSelectMode(true);
+    setCheckboxVisible(true);
+    setShowMenu(false);
+  };
+
+  const handleExitSelectMode = () => {
+    setShowSelectMode(false);
+    setCheckboxVisible(false);
+    setSelectedLeft([]);
+    setSelectedRight([]);
+  };
+
   useEffect(() => {
     if (selectedLeft.length === 0 && selectedRight.length === 0) {
       setCheckboxVisible(false);
+      if (showSelectMode) {
+        // Don't automatically exit select mode when no messages are selected
+        // This allows users to enter select mode and then choose messages
+        // setShowSelectMode(false);
+      }
     }
-  }, [selectedLeft, selectedRight]);
+  }, [selectedLeft, selectedRight, showSelectMode]);
 
   useEffect(() => {
     fetchChatMembersForUI(setChatMembers);
@@ -218,6 +287,7 @@ const Chat = () => {
             setSelectedLeft,
             setSelectedRight,
             setCheckboxVisible,
+            handlePlusIconClick,
           }}
         />
       </div>
@@ -229,9 +299,17 @@ const Chat = () => {
             {...{
               activeFriend,
               checkboxVisible,
-              handleChatdelete,
+              handleChatdelete: () => {
+                setConfirmationType("deleteMessages");
+                setShowConfirmation(true);
+              },
               showMenu,
               setShowMenu,
+              handleClearChat,
+              handleSelectMessages,
+              handleSelectAll,
+              showSelectMode,
+              handleExitSelectMode,
             }}
           />
           <ChatMessages
@@ -244,6 +322,7 @@ const Chat = () => {
               handleSelectToggle,
               isFriendTyping,
               activeFriend,
+              showSelectMode,
             }}
           />
           <ChatInput
@@ -257,69 +336,105 @@ const Chat = () => {
           />
         </div>
       ) : (
-        <div className="empty-chat">
-          <FaPlusCircle className="plus-icon" onClick={handlePlusIconClick} />
-          <h3>No chat selected</h3>
-          <p>Select a conversation or start a new one</p>
+        <EmptyChat
+          handlePlusIconClick={handlePlusIconClick}
+          userId={userId}
+          user={user}
+        />
+      )}
 
-          {showFollowingList && (
-            <div className="following-list-modal">
-              <div className="following-list-content">
-                <div className="following-header">
-                  <h3>Start a new conversation</h3>
-                  <button
-                    className="close-following-btn"
-                    onClick={() => setShowFollowingList(false)}
-                  >
-                    &times;
-                  </button>
-                </div>
-                <div className="following-users">
-                  {isLoading ? (
-                    <div className="loading-spinner">Loading...</div>
-                  ) : followingUsers && followingUsers.length > 0 ? (
-                    followingUsers.map((followingUser) => (
-                      <div
-                        key={followingUser._id}
-                        className="following-user-item"
-                        onClick={() => startNewChat(followingUser)}
-                      >
-                        <div className="following-user-avatar">
-                          {followingUser.profilePicture ? (
-                            <img
-                              src={followingUser.profilePicture}
-                              alt={followingUser.username}
-                            />
-                          ) : (
-                            <div className="avatar-placeholder">
-                              {followingUser.username
-                                ? followingUser.username.charAt(0).toUpperCase()
-                                : "?"}
-                            </div>
-                          )}
-                        </div>
-                        <div className="following-user-info">
-                          <h4>{followingUser.username || "Unknown User"}</h4>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="no-following">
-                      <p>You are not following anyone yet.</p>
-                      <p className="debug-info">
-                        User ID: {userId || "Not available"}
-                        <br />
-                        Following array:{" "}
-                        {user?.following
-                          ? `${user.following.length} users`
-                          : "Not available"}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
+      {/* Following List Modal - Now available in all views */}
+      {showFollowingList && (
+        <div className="following-list-modal">
+          <div className="following-list-content">
+            <div className="following-header">
+              <div className="following-title">Start a new conversation</div>
+              <button
+                className="close-following-btn"
+                onClick={() => setShowFollowingList(false)}
+              >
+                &times;
+              </button>
             </div>
-          )}
+            <div className="following-users">
+              {isLoading ? (
+                <div className="loading-spinner">Loading...</div>
+              ) : followingUsers && followingUsers.length > 0 ? (
+                followingUsers.map((followingUser) => (
+                  <div
+                    key={followingUser._id}
+                    className="following-user-item"
+                    onClick={() => startNewChat(followingUser)}
+                  >
+                    <div className="following-user-avatar">
+                      {followingUser.profilePicture ? (
+                        <img
+                          src={followingUser.profilePicture}
+                          alt={followingUser.username}
+                        />
+                      ) : (
+                        <div className="avatar-placeholder">
+                          {followingUser.username
+                            ? followingUser.username.charAt(0).toUpperCase()
+                            : "?"}
+                        </div>
+                      )}
+                    </div>
+                    <div className="following-user-info">
+                      <div className="following-user-name">
+                        {followingUser.username || "Unknown User"}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-following">
+                  <p>You are not following anyone yet.</p>
+                  <p className="debug-info">
+                    User ID: {userId || "Not available"}
+                    <br />
+                    Following array:{" "}
+                    {user?.following
+                      ? `${user.following.length} users`
+                      : "Not available"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmation && (
+        <div className="confirmation-modal">
+          <div className="confirmation-content">
+            <div className="confirmation-title">
+              {confirmationType === "clearChat"
+                ? "Clear Chat"
+                : "Delete Selected Messages"}
+            </div>
+            <p>
+              {confirmationType === "clearChat"
+                ? "Are you sure you want to clear all messages in this chat? This action cannot be undone."
+                : "Are you sure you want to delete the selected messages? This action cannot be undone."}
+            </p>
+            <div className="confirmation-buttons">
+              <button className="cancel-btn" onClick={handleCancelConfirmation}>
+                Cancel
+              </button>
+              <button
+                className="confirm-btn"
+                onClick={
+                  confirmationType === "clearChat"
+                    ? handleConfirmClearChat
+                    : handleConfirmDeleteMessages
+                }
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

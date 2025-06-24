@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
+import { FaPlus } from "react-icons/fa";
 import "./Chat.css";
 
 const ChatFriendsList = ({
@@ -12,6 +13,7 @@ const ChatFriendsList = ({
   setSelectedRight,
   setCheckboxVisible,
   setSearchQuery,
+  handlePlusIconClick,
 }) => {
   const navigate = useNavigate();
 
@@ -19,13 +21,20 @@ const ChatFriendsList = ({
     navigate("/feed");
   };
   console.log(filteredFriends);
-  
+
   return (
     <div className="chat-sidebar">
       <div className="sidebar-header">
         <button className="back-to-feed" onClick={handleBackToFeed}>
           <IoArrowBack />
           <span>Back to Feed</span>
+        </button>
+        <button
+          className="new-chat-btn"
+          onClick={handlePlusIconClick}
+          title="Start new conversation"
+        >
+          <FaPlus />
         </button>
       </div>
       <input

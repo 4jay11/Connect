@@ -10,6 +10,7 @@ const ChatMessages = ({
   handleSelectToggle,
   isFriendTyping,
   activeFriend,
+  showSelectMode,
 }) => {
   const messagesEndRef = useRef(null);
 
@@ -34,8 +35,9 @@ const ChatMessages = ({
                 ? selectedLeft.includes(msg.id)
                 : selectedRight.includes(msg.id)
             }
-            checkboxVisible={checkboxVisible}
+            checkboxVisible={checkboxVisible || showSelectMode}
             onSelectToggle={handleSelectToggle}
+            showSelectMode={showSelectMode}
           />
         ))}
         {isFriendTyping && (
