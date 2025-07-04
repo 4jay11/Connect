@@ -2,8 +2,9 @@ const express = require("express");
 const userAuth = require("../middlewares/userAuth");
 const { Chat } = require("../models/chat");
 
-const  chatRouter = express.Router();
+const chatRouter = express.Router();
 
+// Get all chat members for the current user
 chatRouter.get("/chat/members", userAuth, async (req, res) => {
   try {
     const myId = req.user._id;
@@ -12,7 +13,6 @@ chatRouter.get("/chat/members", userAuth, async (req, res) => {
       "participants",
       "username profilePicture bio followers following"
     );
-
 
     const otherUsersMap = new Map();
 
@@ -31,6 +31,58 @@ chatRouter.get("/chat/members", userAuth, async (req, res) => {
   }
 });
 
+// Create a new chat with a user
+chatRouter.post("/chat", userAuth, async (req, res) => {
+  try {
+    const { targetUserId } = req.body;
+    const userId = req.user._id;
+
+    if (!targetUserId) {
+      return res.status(400).json({ message: "Target user ID is required" });
+    }
+
+    // Check if chat already exists
+    let chat = await Chat.findOne({
+      participants: { $all: [userId, targetUserId] },
+    });
+
+    // Create new chat if it doesn't exist
+    if (!chat) {
+      chat = new Chat({
+        participants: [userId, targetUserId],
+        messages: [],
+      });
+      await chat.save();
+
+      // Populate the participants for the response
+      chat = await Chat.findById(chat._id).populate(
+        "participants",
+        "username profilePicture bio followers following"
+      );
+
+      return res.status(201).json({
+        message: "Chat created successfully",
+        chat,
+      });
+    }
+
+    // If chat already exists, return it
+    chat = await Chat.findById(chat._id).populate(
+      "participants",
+      "username profilePicture bio followers following"
+    );
+
+    return res.status(200).json({
+      message: "Chat already exists",
+      chat,
+    });
+  } catch (err) {
+    console.error("Error creating chat:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Delete a chat with a user
 chatRouter.delete("/chat/:targetUserId", userAuth, async (req, res) => {
   try {
     const { targetUserId } = req.params;
@@ -55,10 +107,10 @@ chatRouter.delete("/chat/:targetUserId", userAuth, async (req, res) => {
   }
 });
 
-
+// Delete specific messages in a chat
 chatRouter.delete("/deleteChats/:targetUserId", userAuth, async (req, res) => {
   try {
-    const { messageIds  , deleteForEveryone = false } = req.body;
+    const { messageIds, deleteForEveryone = false } = req.body;
     const currentUserId = req.user._id;
     const targetUserId = req.params.targetUserId;
 
@@ -106,9 +158,7 @@ chatRouter.delete("/deleteChats/:targetUserId", userAuth, async (req, res) => {
   }
 });
 
-
-
-
+// Get messages for a specific chat
 chatRouter.get("/chat/:targetUserId", userAuth, async (req, res) => {
   const { targetUserId } = req.params;
   const userId = req.user._id;
@@ -142,6 +192,44 @@ chatRouter.get("/chat/:targetUserId", userAuth, async (req, res) => {
     });
   } catch (err) {
     console.error("Error getting chat:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+chatRouter.post("/chat/message/:targetUserId", userAuth, async (req, res) => {
+  try {
+    const { text } = req.body;
+    const senderId = req.user._id;
+    const { targetUserId } = req.params;
+
+    if (!text) {
+      return res.status(400).json({ message: "Message text is required." });
+    }
+
+    // Find or create chat
+    let chat = await Chat.findOne({
+      participants: { $all: [senderId, targetUserId] },
+    });
+
+    if (!chat) {
+      chat = new Chat({ participants: [senderId, targetUserId], messages: [] });
+    }
+
+    const newMessage = {
+      senderId,
+      text,
+      deletedFor: [],
+    };
+
+    chat.messages.push(newMessage);
+    await chat.save();
+
+    // Return latest message added
+    const lastMessage = chat.messages[chat.messages.length - 1];
+
+    res.status(201).json({ message: "Message sent", messageData: lastMessage });
+  } catch (err) {
+    console.error("Error adding message:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });

@@ -61,6 +61,24 @@ export const createHighlight = async (name, storyId, coverImage) => {
   return response.data;
 };
 
+export const deleteHighlight = async (highlightId) => {
+  const response = await axios.delete(`${BASE_URL}/highlight/${highlightId}`, {
+    withCredentials: true,
+    headers: { "Content-Type": "application/json" },
+  });
+  console.log("APi", response);
+  return response.data;
+};
+
+export const deleteStoryFromHighlight = async (highlightId, storyId) => {
+  const response = await axios.patch(
+    `${BASE_URL}/highlight/remove-story`,
+    { highlightId, storyId },
+    { withCredentials: true, headers: { "Content-Type": "application/json" } }
+  );
+  return response.data;
+};
+
 // Add a new story
 export const addNewStory = async (content, image) => {
   const response = await axios.post(

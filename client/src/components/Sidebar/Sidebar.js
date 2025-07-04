@@ -5,6 +5,7 @@ import {
   UilBell,
   UilEnvelopeAlt,
   UilBookmarkFull,
+  UilUser,
 } from "@iconscout/react-unicons";
 import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
@@ -26,10 +27,20 @@ const Sidebar = () => {
   const handleExplore = () => {
     console.log("Explore clicked");
     navigate("/explore");
-  }
+  };
+
+  const handleProfile = () => {
+    console.log("Profile clicked");
+    navigate(`/profile/${currentUser._id}`);
+  };
+
   return (
     <div>
-      <div className="profile" href="#">
+      <div
+        className="profile"
+        onClick={handleProfile}
+        style={{ cursor: "pointer" }}
+      >
         <div className="profile-photo">
           <img src={currentUser.profilePicture} alt="Profile" />
         </div>
@@ -56,7 +67,7 @@ const Sidebar = () => {
           </span>
           <h3>Explore</h3>
         </div>
-        
+
         <div
           onClick={handleMessage}
           className="menu-item"
@@ -77,6 +88,14 @@ const Sidebar = () => {
             </i>
           </span>
           <h3>Bookmarks</h3>
+        </div>
+        <div onClick={handleProfile} className="menu-item">
+          <span>
+            <i>
+              <UilUser />
+            </i>
+          </span>
+          <h3>Profile</h3>
         </div>
         {/* Add more menu items */}
       </div>

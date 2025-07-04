@@ -66,9 +66,7 @@ router.post("/create", auth, async (req, res) => {
   }
 });
 
-// =================================
 // Get highlights for specific user
-// =================================
 router.get("/user/:userId", async (req, res) => {
   try {
     const highlights = await Highlight.find({
@@ -87,11 +85,7 @@ router.get("/user/:userId", async (req, res) => {
   }
 });
 
-
-
-// ================================
 // Add a story to a highlight
-// ================================
 router.patch("/add-story", auth, async (req, res) => {
   try {
     const { highlightId, storyId } = req.body;
@@ -129,9 +123,7 @@ router.patch("/add-story", auth, async (req, res) => {
   }
 });
 
-// ================================
 // Remove a story from a highlight
-// ================================
 router.patch("/remove-story", auth, async (req, res) => {
   try {
     const { highlightId, storyId } = req.body;
@@ -161,9 +153,8 @@ router.patch("/remove-story", auth, async (req, res) => {
   }
 });
 
-// ================================
+
 // Update a highlight
-// ================================
 router.patch("/:id", auth, async (req, res) => {
   try {
     const { name, coverImage } = req.body;
@@ -203,9 +194,7 @@ router.patch("/:id", auth, async (req, res) => {
   }
 });
 
-// ================================
 // Delete a highlight
-// ================================
 router.delete("/:id", auth, async (req, res) => {
   try {
     const highlight = await Highlight.findById(req.params.id);

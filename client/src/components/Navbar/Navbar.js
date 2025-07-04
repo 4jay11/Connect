@@ -72,7 +72,7 @@ const Navbar = () => {
 
   const handleHomeClick = () => navigate("/");
   const handleProfileClick = () => {
-    navigate(`/profile/${id}`);
+    navigate(`/profile`);
     setShowProfileMenu(false);
   };
 

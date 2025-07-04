@@ -159,4 +159,44 @@ postRouter.get("/", userAuth, async (req, res) => {
   }
 });
 
+// Get a specific post by ID
+postRouter.get("/single/:postId", userAuth, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    
+    if (!postId) {
+      return res.status(400).json({ error: "Post ID is required" });
+    }
+    
+    // Find the post by ID and populate necessary fields
+    const post = await Post.findById(postId)
+      .populate("userId", "username profilePicture")
+      .populate("likes", "username profilePicture")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "userId",
+          select: "username profilePicture",
+        },
+      });
+      
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    
+    // Find other posts by the same user (excluding the current post)
+    const userOtherPosts = await Post.find({
+      userId: post.userId._id,
+      _id: { $ne: postId }
+    })
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .populate("userId", "username profilePicture");
+    
+    res.status(200).json({ post, userOtherPosts });
+  } catch (err) {
+    res.status(500).json({ error: "Error: " + err.message });
+  }
+});
+
 module.exports = postRouter;

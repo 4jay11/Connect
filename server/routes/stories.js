@@ -32,29 +32,6 @@ storyRouter.post("/addNewStory", userAuth, async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
-storyRouter.get("/getStoryById/:storyId", userAuth, async (req, res) => {
-  try {
-    const { storyId } = req.params;
-
-    // Validate storyId
-    if (!validator.isMongoId(storyId)) {
-      return res.status(400).json({ error: "Invalid storyId" });
-    }
-
-    const story = await Stories.findById(storyId)
-      .populate("userId", "username profileImage")
-
-    
-    if (!story) {
-      return res.status(404).json({ error: "Story not found" });
-    }
-
-    res.status(200).json({ story });
-  } catch (err) {
-    console.error("Error fetching story:", err.message);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-});
 
 storyRouter.delete("/deleteStory/:story_id", userAuth, async (req, res) => {
   try {
@@ -79,7 +56,7 @@ storyRouter.delete("/deleteStory/:story_id", userAuth, async (req, res) => {
   }
 });
 
-storyRouter.patch("/view/:storyId", userAuth, async (req, res) => {
+storyRouter.patch("/viewed/:storyId", userAuth, async (req, res) => {
   try {
     const { storyId } = req.params;
     const { _id } = req.user;
@@ -156,10 +133,13 @@ storyRouter.get("/getStories", userAuth, async (req, res) => {
   try {
     const { _id, following } = req.user;
 
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
     const stories = await Stories.find({
+      createdAt: { $gte: twentyFourHoursAgo }, // Only stories from last 24hrs
       $or: [
-        { userId: _id }, // Fetch current user's stories
-        { userId: { $in: following } }, // Fetch following users' stories
+        { userId: _id }, // Current user's stories
+        { userId: { $in: following } }, // Following users' stories
       ],
     }).populate("userId", "username profilePicture");
 

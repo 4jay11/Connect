@@ -5,9 +5,16 @@ import { fetchChatMessages, fetchChatMembers } from "../services/chatApi";
 export const fetchBookmarks = async (setBookmarkedPosts) => {
   try {
     const posts = await getBookmarksPosts();
-    setBookmarkedPosts(posts);
+    if (setBookmarkedPosts) {
+      setBookmarkedPosts(posts);
+    }
+    return posts;
   } catch (err) {
     console.error("Error fetching bookmarks:", err.message);
+    if (setBookmarkedPosts) {
+      setBookmarkedPosts([]);
+    }
+    return [];
   }
 };
 

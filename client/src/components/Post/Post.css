@@ -1,0 +1,31 @@
+/* Post Component Styles */
+:root {
+  --primary-color: #3498db;
+  --primary-light: #e3f2fd;
+  --secondary-color: #e91e63;
+  --text-dark: #333;
+  --text-light: #666;
+  --text-lighter: #999;
+  --background-light: #fff;
+  --background-gray: #f5f5f5;
+  --border-color: #e0e0e0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --overlay-color: rgba(0, 0, 0, 0.7);
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --danger-color: #f44336;
+}
+
+/* Post Card */
+.post-card {
+  background-color: var(--background-light);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--shadow-color);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.post-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}

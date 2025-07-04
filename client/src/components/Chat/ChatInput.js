@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import EmojiPicker from "emoji-picker-react";
 import { FaSmile, FaPaperPlane } from "react-icons/fa";
+import "./ChatInput.css";
 
 const ChatInput = ({
   sendMessage,

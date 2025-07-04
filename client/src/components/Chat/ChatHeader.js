@@ -15,6 +15,7 @@ import {
   FaChevronDown,
   FaSignOutAlt,
 } from "react-icons/fa";
+import "./ChatHeader.css";
 
 const ChatHeader = ({
   activeFriend,

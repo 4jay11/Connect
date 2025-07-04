@@ -1,0 +1,122 @@
+/* ChatInput.css */
+.chat-input-area {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+  gap: 10px;
+}
+
+.emoji-button-container {
+  position: relative;
+}
+
+.emoji-button {
+  background: none;
+  border: none;
+  color: #65676b;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.emoji-button:hover {
+  background-color: #f0f2f5;
+}
+
+.emoji-picker-container {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  z-index: 100;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.emoji-picker-container [data-theme] {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 12px 15px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
+  background-color: #f0f2f5;
+  transition: border-color 0.2s ease;
+}
+
+.chat-input:focus {
+  border-color: #1877f2;
+  background-color: #fff;
+}
+
+.chat-send-btn {
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-send-btn:hover {
+  background-color: #0d6efd;
+}
+
+.emoji-picker-container.mobile {
+  position: fixed;
+  left: 50%;
+  bottom: 80px;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 320px;
+  z-index: 1000;
+}
+
+.emoji-picker-container.mobile::before {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #fff;
+}
+
+@media screen and (max-width: 768px) {
+  .chat-input-area {
+    padding: 10px;
+  }
+  
+  .emoji-picker-container {
+    position: fixed;
+    left: 50%;
+    bottom: 70px;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 320px;
+  }
+  
+  .emoji-picker-container [data-theme] {
+    width: 100% !important;
+  }
+} 

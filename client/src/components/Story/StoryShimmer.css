@@ -1,0 +1,107 @@
+/* Story Shimmer Styles */
+.story-card.shimmer {
+  background-color: #f0f0f0;
+  width: 100px;
+  height: 170px;
+  margin: 0 auto;
+}
+
+.shimmer-bg {
+  background-color: #e0e0e0;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.shimmer-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  overflow: hidden;
+}
+
+.shimmer-text {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 10px;
+  width: 60%;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* Shimmer Animation */
+.shimmer-bg::after,
+.shimmer-circle::after,
+.shimmer-text::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .story-card.shimmer {
+    width: 85px;
+    height: 150px;
+    min-width: 85px;
+  }
+  
+  .shimmer-circle {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .shimmer-text {
+    height: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .story-card.shimmer {
+    width: 75px;
+    height: 130px;
+    min-width: 75px;
+    border-radius: 6px;
+    margin: 0 2px;
+  }
+  
+  .shimmer-circle {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .shimmer-text {
+    height: 7px;
+    width: 55%;
+  }
+} 

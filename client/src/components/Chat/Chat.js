@@ -9,11 +9,11 @@ import ChatHeader from "./ChatHeader";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 import EmptyChat from "./EmptyChat";
-
+import SidebarNav from "../Sidebar/SidebarNav";
 import "./Chat.css";
-import "./EmptyChat.css";
 
 import { fetchChatMessages, fetchChatMembersForUI } from "../../utils/fetch";
+import { fetchChatMembers } from "../../services/chatApi";
 import { handleChat } from "../../utils/handle";
 import { sendMessage } from "../../utils/post";
 import { handledelete } from "../../utils/handle";
@@ -28,13 +28,12 @@ const Chat = () => {
   const { targetUserId } = useParams();
   const isMobileView = useWindowResize();
   const [showChat, setShowChat] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [showEmptyChat, setShowEmptyChat] = useState(true);
   const [messages, setMessages] = useState([]);
   const [isFriendTyping, setIsFriendTyping] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFriend, setActiveFriend] = useState(null);
   const [chatMembers, setChatMembers] = useState([]);
-  const [reloadChatMembers, setReloadChatMembers] = useState(false);
   const [selectedLeft, setSelectedLeft] = useState([]);
   const [selectedRight, setSelectedRight] = useState([]);
   const [checkboxVisible, setCheckboxVisible] = useState(false);
@@ -45,6 +44,8 @@ const Chat = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [confirmationType, setConfirmationType] = useState("");
   const [showSelectMode, setShowSelectMode] = useState(false);
+  const [processingUserId, setProcessingUserId] = useState(null);
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
 
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -63,58 +64,16 @@ const Chat = () => {
   };
 
   const handleDeleteChat = async (targetId) => {
-    if (!targetId) return;
-
-    setConfirmationType("deleteChat");
-    setShowConfirmation(true);
-
-    // Store the target user ID for deletion if it's not the active friend
-    if (targetId !== activeFriend?._id) {
-      sessionStorage.setItem("pendingDeleteUserId", targetId);
-    }
+    console.log("handleDeleteChat");
+    deleteChat(targetId);
+    setChatMembers((prev) => prev.filter((member) => member._id !== targetId));
+    setActiveFriend(null);
+    setShowEmptyChat(true);
+    setMessages([]);
   };
 
   const handleConfirmDeleteChat = async () => {
-    try {
-      // Check if we're deleting the active friend or another chat member
-      let userIdToDelete = activeFriend?._id;
-
-      // If we're deleting from the sidebar (not active chat)
-      const pendingDeleteId = sessionStorage.getItem("pendingDeleteUserId");
-      if (
-        pendingDeleteId &&
-        (!activeFriend || pendingDeleteId !== activeFriend._id)
-      ) {
-        userIdToDelete = pendingDeleteId;
-      }
-
-      if (!userIdToDelete) {
-        console.error("No user selected for deletion");
-        return;
-      }
-
-      console.log("Deleting chat with user:", userIdToDelete);
-      await deleteChat(userIdToDelete);
-
-      // Update local state to reflect the deletion
-      setChatMembers((prevMembers) =>
-        prevMembers.filter((member) => member._id !== userIdToDelete)
-      );
-
-      // If we're viewing the deleted chat, navigate back to the main chat view
-      if (targetUserId === userIdToDelete) {
-        setActiveFriend(null);
-        setMessages([]);
-        navigate("/chat");
-      }
-
-      setShowConfirmation(false);
-      setReloadChatMembers((prev) => !prev); // Trigger reload of chat members
-      sessionStorage.removeItem("pendingDeleteUserId"); // Clear the pending delete ID
-    } catch (error) {
-      console.error("Error deleting chat:", error);
-      sessionStorage.removeItem("pendingDeleteUserId");
-    }
+    console.log("handleConfirmDeleteChat");
   };
 
   const handleSelectToggle = (id, side) => {
@@ -136,22 +95,11 @@ const Chat = () => {
   };
 
   const handleClearChat = () => {
-    setConfirmationType("clearChat");
-    setShowConfirmation(true);
-    setShowMenu(false);
+    console.log("handleClearChat");
   };
 
   const handleConfirmClearChat = async () => {
-    try {
-      // Clear all messages for this chat
-      setMessages([]);
-      // Here you would typically also make an API call to clear messages in the backend
-      // For example: await axios.delete(`${BASE_URL}/api/chat/${activeFriend._id}/clear`);
-
-      setShowConfirmation(false);
-    } catch (error) {
-      console.error("Error clearing chat:", error);
-    }
+    console.log("handleConfirmClearChat");
   };
 
   const handleConfirmDeleteMessages = () => {
@@ -161,29 +109,27 @@ const Chat = () => {
 
   const handleCancelConfirmation = () => {
     setShowConfirmation(false);
-    sessionStorage.removeItem("pendingDeleteUserId");
   };
 
   const fetchFollowingUsers = async () => {
-    if (!user?.following || user.following.length === 0) {
-      console.log("No following users found in Redux state:", user?.following);
-      return;
-    }
-
-    console.log("Following users from Redux:", user.following);
     setIsLoading(true);
     try {
+      if (!user?.following || user.following.length === 0) {
+        console.log("No following users found in Redux state");
+        setFollowingUsers([]);
+        setIsLoading(false);
+        return;
+      }
+
+      console.log("Fetching following users...");
       const followingData = await Promise.all(
         user.following.map(async (followingId) => {
           if (!followingId) return null;
 
           try {
-            console.log("Fetching user data for ID:", followingId);
             const userData = await getUserProfile(followingId);
-            console.log("Received user data:", userData);
 
             // Check for different possible response structures
-            // Some APIs return { user: {...} } instead of direct user object
             const userObject = userData?.user || userData;
 
             // Validate that we have a proper user object with at least an ID
@@ -203,7 +149,7 @@ const Chat = () => {
         (user) => user !== null && typeof user === "object"
       );
 
-      console.log("Valid users after filtering:", validUsers);
+      console.log(`Found ${validUsers.length} following users`);
       setFollowingUsers(validUsers);
     } catch (error) {
       console.error("Error fetching following users:", error);
@@ -214,26 +160,23 @@ const Chat = () => {
   };
 
   const handlePlusIconClick = () => {
-    console.log("Current user from Redux:", user);
-    console.log("User following array:", user?.following);
-
-    // Fetch following users directly without the test code
+    // Fetching following users if not already fetched
     setShowFollowingList(true);
-    fetchFollowingUsers();
+    if (!followingUsers || followingUsers.length === 0) {
+      fetchFollowingUsers();
+    }
   };
 
   const startNewChat = async (selectedUser) => {
-    try {
-      navigate(`/chat/${selectedUser._id}`);
-      // Make sure the active friend is set immediately
-      setActiveFriend(selectedUser);
-      setReloadChatMembers((prev) => !prev);
-      setShowFollowingList(false);
-      setShowChat(true);
-      setInitialLoad(false);
-    } catch (error) {
-      console.error("Error starting new chat:", error);
+    console.log("startNewChat");
+    navigate(`/chat/${selectedUser._id}`);
+    setActiveFriend(selectedUser);
+    setShowEmptyChat(false);
+    setMessages([]);
+    if (!chatMembers.some((member) => member._id === selectedUser._id)) {
+      setChatMembers([...chatMembers, selectedUser]);
     }
+    setShowFollowingList(false);
   };
 
   const handleSelectAll = () => {
@@ -261,20 +204,13 @@ const Chat = () => {
   };
 
   useEffect(() => {
+    // If select left or right is updated or change in displaying select mode
     if (selectedLeft.length === 0 && selectedRight.length === 0) {
       setCheckboxVisible(false);
-      if (showSelectMode) {
-        // Don't automatically exit select mode when no messages are selected
-        // This allows users to enter select mode and then choose messages
-        // setShowSelectMode(false);
-      }
     }
   }, [selectedLeft, selectedRight, showSelectMode]);
 
-  useEffect(() => {
-    fetchChatMembersForUI(setChatMembers);
-  }, [reloadChatMembers]);
-
+  // Fetching chat messages when active friend changes
   useEffect(() => {
     handleChat(
       targetUserId,
@@ -284,10 +220,13 @@ const Chat = () => {
       setChatMembers,
       userId
     );
-  }, [targetUserId, chatMembers, userId]);
+  }, [activeFriend]);
 
+  // WebSocket connection for chat messages
   useEffect(() => {
-    if (!userId || !activeFriend?._id) return;
+    // TODO:Chat delete updation via socket
+    // TODO:Once message is sent , typing indicator should be removed
+    if (!activeFriend?._id) return;
 
     const socket = createSocketConnection();
     socketRef.current = socket;
@@ -318,7 +257,7 @@ const Chat = () => {
     return () => {
       socket.disconnect();
     };
-  }, [userId, activeFriend?._id, user?.username]);
+  }, [activeFriend?._id]);
 
   const filteredFriends = chatMembers.filter((f) =>
     f?.username?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -328,20 +267,14 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Fetch Chat Member once component mounts
   useEffect(() => {
-    if (targetUserId) {
-      setShowChat(true);
-      setInitialLoad(false);
-    } else if (isMobileView) {
-      setShowChat(false);
-    }
-  }, [targetUserId, isMobileView]);
-
-  // Determine if we should show the empty chat screen
-  const shouldShowEmptyChat = !activeFriend && (!initialLoad || !targetUserId);
+    fetchChatMembersForUI(setChatMembers);
+  }, []);
 
   return (
     <div className="chat-wrapper">
+      <SidebarNav showSocialName={true} />
       <div
         className={`chat-sidebar ${isMobileView && showChat ? "hidden" : ""}`}
       >
@@ -357,9 +290,10 @@ const Chat = () => {
           handlePlusIconClick={handlePlusIconClick}
           handleClearChat={handleClearChat}
           handleDeleteChat={handleDeleteChat}
+          setShowEmptyChat={setShowEmptyChat}
         />
       </div>
-      {!shouldShowEmptyChat ? (
+      {!showEmptyChat ? (
         <div
           className={`chat-main ${isMobileView && showChat ? "active" : ""}`}
         >
@@ -368,7 +302,6 @@ const Chat = () => {
               activeFriend,
               checkboxVisible,
               handleChatdelete: () => {
-                setConfirmationType("deleteMessages");
                 setShowConfirmation(true);
               },
               showMenu,
@@ -420,7 +353,10 @@ const Chat = () => {
               <div className="following-title">Start a new conversation</div>
               <button
                 className="close-following-btn"
-                onClick={() => setShowFollowingList(false)}
+                onClick={() =>
+                  processingUserId ? null : setShowFollowingList(false)
+                }
+                disabled={processingUserId !== null}
               >
                 &times;
               </button>
@@ -432,8 +368,20 @@ const Chat = () => {
                 followingUsers.map((followingUser) => (
                   <div
                     key={followingUser._id}
-                    className="following-user-item"
-                    onClick={() => startNewChat(followingUser)}
+                    className={`following-user-item ${
+                      processingUserId && processingUserId !== followingUser._id
+                        ? "disabled"
+                        : ""
+                    } ${
+                      processingUserId === followingUser._id ? "processing" : ""
+                    }`}
+                    onClick={() => {
+                      console.log(
+                        "User selected from following list:",
+                        followingUser
+                      );
+                      startNewChat(followingUser);
+                    }}
                   >
                     <div className="following-user-avatar">
                       {followingUser.profilePicture ? (
@@ -454,6 +402,11 @@ const Chat = () => {
                         {followingUser.username || "Unknown User"}
                       </div>
                     </div>
+                    {processingUserId === followingUser._id && (
+                      <div className="user-loading-spinner">
+                        <div className="spinner"></div>
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (
@@ -513,6 +466,15 @@ const Chat = () => {
                   : "Delete Chat"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`chat-toast ${toast.type}`}>
+          <div className="toast-content">
+            <p>{toast.message}</p>
           </div>
         </div>
       )}

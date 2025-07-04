@@ -1,42 +1,140 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import Navbar from "../Navbar/Navbar";
-import StickySidebar from "../Sidebar/StickySidebar";
-import BookmarkCard from "./BookmarkCard";
-import { fetchBookmarks } from "../../utils/fetch";
-import "./Bookmarks.css";
+import {
+  likePost,
+  bookmarkPost,
+  addComment,
+  deleteComment,
+} from "../../services";
+import ContentGrid from "../SharedComponents/ContentGrid";
+import { getBookmarksPosts } from "../../services/bookmarkApi";
 
 const Bookmarks = () => {
   const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
 
   useEffect(() => {
-    fetchBookmarks(setBookmarkedPosts);
-  }, []);
+    const fetchBookmarks = async () => {
+      try {
+        setLoading(true);
+        const data = await getBookmarksPosts();
+        // Ensure we have all the required data for each post
+        const posts = data.map((post) => ({
+          ...post,
+          likes: post.likes || [],
+          bookmarks: post.bookmarks || [],
+          comments: Array.isArray(post.comments)
+            ? post.comments.map((comment) => ({
+                ...comment,
+                userId: comment.userId || {
+                  _id: "",
+                  username: "Unknown User",
+                  profilePicture: "",
+                },
+              }))
+            : [],
+          userId: post.userId || {
+            _id: "",
+            username: "Unknown User",
+            profilePicture: "",
+          },
+        }));
+        setBookmarkedPosts(posts || []);
+      } catch (err) {
+        console.error("Error fetching bookmarks:", err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookmarks();
+  }, [refreshTrigger]);
+
+  const handleLike = async (postId) => {
+    try {
+      const res = await likePost(postId);
+      if (res) {
+        setRefreshTrigger((prev) => !prev);
+      }
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const handleBookmark = async (postId) => {
+    try {
+      const res = await bookmarkPost(postId);
+      if (res) {
+        setRefreshTrigger((prev) => !prev);
+      }
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const handlePostDelete = async (id) => {
+    try {
+      // await deletePost(id);
+      console.log("Post deleted successfully");
+      setBookmarkedPosts((prevPosts) =>
+        prevPosts.filter((post) => post._id !== id)
+      );
+    } catch (err) {
+      console.error("Failed to delete post:", err.message);
+    }
+  };
+
+  const handlePostEdit = async (id, text) => {
+    try {
+      // await updatePost(id, text);
+      setBookmarkedPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post._id === id) {
+            return { ...post, content: text };
+          }
+          return post;
+        })
+      );
+    } catch (err) {
+      console.error(
+        "Failed to edit post:",
+        err.response?.data?.message || err.message
+      );
+    }
+  };
+
+  const handleCommentSubmit = async (postId, commentText) => {
+    try {
+      await addComment(postId, commentText);
+      setRefreshTrigger((prev) => !prev);
+    } catch (err) {
+      console.error("Failed to add comment:", err.message);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await deleteComment(commentId);
+      setRefreshTrigger((prev) => !prev);
+    } catch (err) {
+      console.error("Failed to delete comment:", err.message);
+    }
+  };
 
   return (
-    <div className="book">
-      <Navbar />
-      <div className="bookmark-page" style={{ marginTop: "80px" }}>
-        <div className="left">
-          <StickySidebar />
-        </div>
-        <div className="right">
-          <div className="book-title">
-            <h1 className="bookmarks">Bookmarks</h1>
-          </div>
-          <div className="bookmark-container">
-            {bookmarkedPosts.length ? (
-              bookmarkedPosts.map((post, index) => (
-                <BookmarkCard key={post._id} bookmarkPhoto={post.image} />
-              ))
-            ) : (
-              <p>No bookmarks found</p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    <ContentGrid
+      title="Bookmarks"
+      subtitle="Your saved posts in one place"
+      posts={bookmarkedPosts}
+      loading={loading}
+      handleLike={handleLike}
+      handleBookmark={handleBookmark}
+      handlePostDelete={handlePostDelete}
+      handlePostEdit={handlePostEdit}
+      onCommentSubmit={handleCommentSubmit}
+      onDeleteComment={handleDeleteComment}
+    />
   );
 };
 
-export default Bookmarks;
+export default Bookmarks; 

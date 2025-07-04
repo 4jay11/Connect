@@ -1,0 +1,158 @@
+.wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.9);
+  position: relative;
+}
+
+.card-container {
+  width: 400px;
+  height: 700px;
+  background-color: transparent;
+  overflow: hidden;
+  position: relative;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Each card item wrapper */
+.card-slide {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Invisible navigation areas INSIDE the card */
+.click-zone-card {
+  position: absolute;
+  top: 100px; /* below header */
+  bottom: 100px; /* above footer/content */
+  width: 40%;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.click-zone-card.left {
+  left: 0;
+}
+
+.click-zone-card.right {
+  right: 0;
+}
+
+/* Optional debug: show when hovering */
+.click-zone-card:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Multi-progress bar for stories */
+.multi-progress-wrapper {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  gap: 4px;
+  padding: 0 12px;
+  z-index: 5;
+  box-sizing: border-box;
+}
+
+.multi-progress-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  flex-grow: 1;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.multi-progress-bar.filled {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.multi-progress-bar.active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.fill-animate {
+  height: 100%;
+  width: 100%;
+  background: white;
+  transform-origin: left;
+  animation: fillProgressBar 15s linear forwards;
+}
+
+@keyframes fillProgressBar {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Back button - only visible on desktop */
+.back-button {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .wrapper {
+    height: 100vh;
+    width: 100vw;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .card-container {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  
+  .back-button {
+    display: none;
+  }
+  
+  .click-zone-card {
+    top: 80px;
+    bottom: 80px;
+  }
+  
+  .multi-progress-wrapper {
+    top: 5px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .card-container {
+    padding: 0;
+  }
+  
+  .click-zone-card {
+    width: 50%;
+  }
+}

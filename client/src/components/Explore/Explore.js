@@ -1,26 +1,49 @@
 import React, { useEffect, useState } from "react";
-import "./Explore.css";
-import ExploreCard from "./ExploreCard";
-import Navbar from "../Navbar/Navbar";
-import StickySidebar from "../Sidebar/StickySidebar";
-import { useSelector } from "react-redux";
-
-import { getFeedPosts, likePost, bookmarkPost } from "../../services";
+import {
+  getFeedPosts,
+  likePost,
+  bookmarkPost,
+  addComment,
+  deleteComment,
+} from "../../services";
+import ContentGrid from "../SharedComponents/ContentGrid";
 
 const Explore = () => {
-  const currentUser = useSelector((state) => state.auth.user);
   const [explorePosts, setExplorePosts] = useState([]);
-  const [showFeedPopup, setShowFeedPopup] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
 
   useEffect(() => {
     const fetchExplore = async () => {
       try {
+        setLoading(true);
         const data = await getFeedPosts();
-        setExplorePosts(data || []);
+        // Ensure we have all the required data for each post
+        const posts = data.map((post) => ({
+          ...post,
+          likes: post.likes || [],
+          bookmarks: post.bookmarks || [],
+          comments: Array.isArray(post.comments)
+            ? post.comments.map((comment) => ({
+                ...comment,
+                userId: comment.userId || {
+                  _id: "",
+                  username: "Unknown User",
+                  profilePicture: "",
+                },
+              }))
+            : [],
+          userId: post.userId || {
+            _id: "",
+            username: "Unknown User",
+            profilePicture: "",
+          },
+        }));
+        setExplorePosts(posts || []);
       } catch (err) {
         console.error("Error fetching Explore:", err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -49,38 +72,68 @@ const Explore = () => {
     }
   };
 
-  return (
-    <div className="book">
-      <Navbar />
-      <div className="bookmark-page" style={{ marginTop: "80px" }}>
-        <div className="left">
-          <StickySidebar />
-        </div>
-        <div className="right">
-          <div className="book-title">
-            <h1 className="bookmarks">Explore</h1>
-          </div>
-          <div className="explore-container">
-            {explorePosts.length ? (
-              explorePosts.map((post, index) => (
-                <ExploreCard
-                  key={post._id}
-                  bookmarkPhoto={post.image}
-                  onClick={() => {
-                    setCurrentIndex(index);
-                    setShowFeedPopup(true);
-                  }}
-                />
-              ))
-            ) : (
-              <p>No posts found</p>
-            )}
-          </div>
-        </div>
+  const handlePostDelete = async (id) => {
+    try {
+      // await deletePost(id);
+      console.log("Post deleted successfully");
+      setExplorePosts((prevPosts) =>
+        prevPosts.filter((post) => post._id !== id)
+      );
+    } catch (err) {
+      console.error("Failed to delete post:", err.message);
+    }
+  };
 
-        
-      </div>
-    </div>
+  const handlePostEdit = async (id, text) => {
+    try {
+      // await updatePost(id, text);
+      setExplorePosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post._id === id) {
+            return { ...post, content: text };
+          }
+          return post;
+        })
+      );
+    } catch (err) {
+      console.error(
+        "Failed to edit post:",
+        err.response?.data?.message || err.message
+      );
+    }
+  };
+
+  const handleCommentSubmit = async (postId, commentText) => {
+    try {
+      await addComment(postId, commentText);
+      setRefreshTrigger((prev) => !prev);
+    } catch (err) {
+      console.error("Failed to add comment:", err.message);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await deleteComment(commentId);
+      setRefreshTrigger((prev) => !prev);
+    } catch (err) {
+      console.error("Failed to delete comment:", err.message);
+    }
+  };
+
+  return (
+    <ContentGrid
+      title="Explore"
+      subtitle="Discover amazing content from around the world"
+      posts={explorePosts}
+      loading={loading}
+      handleLike={handleLike}
+      handleBookmark={handleBookmark}
+      handlePostDelete={handlePostDelete}
+      handlePostEdit={handlePostEdit}
+      onCommentSubmit={handleCommentSubmit}
+      onDeleteComment={handleDeleteComment}
+    />
   );
 };
 

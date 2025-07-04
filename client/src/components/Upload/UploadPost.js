@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "./UploadPost.css";
-import axios from "axios";
+
 import { useNavigate } from "react-router-dom";
 import { ThreeDots } from "react-loader-spinner";
 import useGeolocation from "../../hooks/useGeolocation";
 import { uploadFile } from "../../utils/post";
 import { createPost } from "../../services/postApi";
-import { useSelector } from "react-redux";
+import { FaImage, FaCheck, FaTimes } from "react-icons/fa";
+
 const UploadPost = () => {
-  const [summary, setSummary] = useState("");
+  const [content, setContent] = useState("");
   const [imgFile, setImgFile] = useState(null);
   const [imgPreview, setImgPreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -31,8 +32,8 @@ const UploadPost = () => {
     setImgPreview(URL.createObjectURL(file));
   };
 
-  const handleSummaryChange = (e) => {
-    setSummary(e.target.value);
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
   };
 
   // const uploadFile = async () => {
@@ -69,7 +70,7 @@ const UploadPost = () => {
 
       const res = createPost({
         userId,
-        content: summary,
+        content: content,
         image: imageUrl,
         location,
       });
@@ -77,8 +78,7 @@ const UploadPost = () => {
       setMessage("Post added successfully");
       setImgFile(null);
       setImgPreview(null);
-      setSummary("");
-      document.getElementById("imageInput").value = "";
+      setContent("");
       navigate("/feed");
     } catch (error) {
       console.error("Error posting data:", error);
@@ -87,48 +87,85 @@ const UploadPost = () => {
       setLoading(false);
     }
   };
+    const handleCancel = () => {
+      navigate("/feed");
+    };
 
   return (
-    <div className="upload-form-container">
-      <form onSubmit={handleSubmit} className="upload-form">
-        <div className="image-upload">
-          <label htmlFor="imageInput" className="image-label">
-            {imgPreview ? (
-              <img src={imgPreview} alt="Preview" className="image-preview" />
+    <div className="story-uploader-container">
+      <div className="story-uploader-header">
+        <h2>Create New Post</h2>
+        <div className="story-uploader-actions">
+          <button
+            className="cancel-button"
+            onClick={handleCancel}
+            disabled={loading}
+          >
+            <FaTimes /> Cancel
+          </button>
+          <button
+            className="submit-button"
+            onClick={handleSubmit}
+            disabled={!imgFile || loading}
+          >
+            {loading ? (
+              <ThreeDots height="20" width="30" color="#ffffff" />
             ) : (
-              <span className="image-placeholder">Click to Upload Image</span>
+              <>
+                <FaCheck /> Share Post
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      <div className="story-uploader-content">
+        <div className="image-upload-container">
+          <label htmlFor="storyImageInput" className="image-upload-label">
+            {imgPreview ? (
+              <img
+                src={imgPreview}
+                alt="Story preview"
+                className="story-image-preview"
+              />
+            ) : (
+              <div className="image-upload-placeholder">
+                <FaImage size={40} />
+                <p>Click to upload image</p>
+                <span>Required for Post</span>
+              </div>
             )}
           </label>
           <input
             type="file"
-            id="imageInput"
+            id="storyImageInput"
             accept="image/*"
             onChange={handleImageChange}
             className="image-input"
           />
         </div>
-        <div className="summary-input-container">
+
+        <div className="story-text-container">
           <textarea
-            placeholder="Write a summary..."
-            value={summary}
-            onChange={handleSummaryChange}
-            className="summary-input"
+            placeholder="Add a caption to your story (optional)"
+            value={content}
+            onChange={handleContentChange}
+            className="story-text-input"
+            maxLength={100}
           />
+          <div className="character-count">{content.length}/100</div>
         </div>
-        <button type="submit" disabled={loading} className="submit-button">
-          Submit
-        </button>
-        {loading && (
-          <ThreeDots
-            height="80"
-            width="80"
-            radius="9"
-            color="#4fa94d"
-            ariaLabel="loading"
-          />
-        )}
-        {message && <p>{message}</p>}
-      </form>
+      </div>
+
+      {message && (
+        <div
+          className={`message ${
+            message.includes("Error") ? "error" : "success"
+          }`}
+        >
+          {message}
+        </div>
+      )}
     </div>
   );
 };

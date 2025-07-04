@@ -1,6 +1,15 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 
+// Get a single post by ID
+export const getSinglePost = async (postId) => {
+  const response = await axios.get(`${BASE_URL}/post/single/${postId}`, {
+    withCredentials: true,
+    headers: { "Content-Type": "application/json" },
+  });
+  return response.data;
+};
+
 // Get feed posts
 export const getFeedPosts = async () => {
   const response = await axios.get(`${BASE_URL}/post/post-generator`, {

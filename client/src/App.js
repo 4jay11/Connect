@@ -2,9 +2,9 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
-import Stories from "./components/Stories/Stories";
-import CreatePost from "./components/Upload/CreatePost";
-import Feeds from "./components/Feed/Feeds";
+import Stories from "./components/Story/Stories";
+
+import Posts from "./components/Post/Posts";
 import FriendRequests from "./components/FriendRequest/FriendRequests";
 
 import "./App.css";
@@ -36,7 +36,7 @@ const App = () => {
             </div>
             {/* <CreatePost /> */}
             <div className="feed">
-              <Feeds currentUser={currentUser} />
+              <Posts currentUser={currentUser} />
             </div>
           </div>
           <div className="right">

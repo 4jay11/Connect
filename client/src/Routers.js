@@ -11,18 +11,24 @@ import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import App from "./App";
 import UploadPost from "./components/Upload/UploadPost";
-import Profile from "./components/Profile/Profile";
 import Bookmarks from "./components/Bookmark/Bookmarks";
-import ProfileSection from "./components/Profile/ProfileSection";
 import ProtectedRoute from "./ProtectedRoute";
-import StoryView from "./components/Stories/StoryView";
-import StoryUploader from "./components/Stories/StoryUploader";
+import StoryUploader from "./components/Upload/StoryUploader";
 import Chat from "./components/Chat/Chat";
 import Explore from "./components/Explore/Explore";
-import HighlightView from "./components/Highlights/HighlightView";
+import SinglePost from "./components/Post/SinglePost";
+
+// Import our User components
+import UserProfile from "./components/User/UserProfile";
+import EditProfile from "./components/User/EditProfile";
+import PageNotFound from "./components/SharedComponents/PageNotFound";
+import ProfileNotFound from "./components/User/ProfileNotFound";
+import { StoryPage } from "./components/StoryPage/StoryPage";
+import { Highlights } from "./components/Highlights/Highlights";
 
 const Routers = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const currentUser = useSelector((state) => state.auth.user);
 
   return (
     <Router>
@@ -55,29 +61,27 @@ const Routers = () => {
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/feed" element={<App />} />
-          <Route path="/profile/:id" element={<ProfileSection />} />
           <Route path="/upload" element={<UploadPost />} />
           <Route path="/story-upload" element={<StoryUploader />} />
           <Route path="/bookmark" element={<Bookmarks />} />
-          <Route path="/storyView/:id" element={<StoryView />} />
-          <Route
-            path="/highlights/:userId/:highlightId"
-            element={<HighlightView />}
-          />
-          <Route
-            path="/highlights/:userId/:highlightId/:storyId"
-            element={<HighlightView />}
-          />
+          <Route path="/story-page/:id" element={<StoryPage />} />
+          <Route path="/post/:postId" element={<SinglePost />} />
+          <Route path="/highlights/:userId/:id" element={<Highlights />} />
           <Route path="/explore" element={<Explore />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/chat/:targetUserId?" element={<Chat />} />
-        </Route>
 
-        {/* Catch-all Route */}
-        <Route
-          path="*"
-          element={<Navigate to={isAuthenticated ? "/feed" : "/"} />}
-        />
+          {/* User Profile Routes */}
+          {/* <Route path="/profile" element={<UserProfile />} /> */}
+          <Route path="/profile/:id" element={<UserProfile />} />
+          <Route path="/edit-profile" element={<EditProfile />} />
+
+          <Route path="/chat/:targetUserId?" element={<Chat />} />
+
+          {/* Not Found Route - Must be inside protected routes to have access to currentUser */}
+          <Route
+            path="*"
+            element={<PageNotFound currentUser={currentUser} />}
+          />
+        </Route>
       </Routes>
     </Router>
   );

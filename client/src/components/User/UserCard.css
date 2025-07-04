@@ -1,0 +1,197 @@
+/* User Card */
+.user-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.user-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.user-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.user-card-avatar-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.user-card-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: filter 0.3s;
+}
+
+.user-card-avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 24px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.user-card-avatar-container:hover .user-card-avatar {
+  filter: blur(1px);
+}
+
+.user-card-avatar-container:hover .user-card-avatar-overlay {
+  opacity: 1;
+}
+
+.user-card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
+.edit-profile-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.edit-profile-btn:hover {
+  background-color: #2980b9;
+}
+
+.follow-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.follow-btn:hover {
+  background-color: #2980b9;
+}
+
+.follow-btn.following {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.follow-btn.following:hover {
+  background-color: #ff3b30;
+  color: white;
+}
+
+.chat-btn {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chat-btn:hover {
+  background-color: #219653;
+}
+
+.follow-btn:disabled,
+.chat-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.user-card-info {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.user-card-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #333;
+}
+
+.user-card-bio {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.user-card-stats {
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+.user-card-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-icon {
+  font-size: 12px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .user-card {
+    margin-bottom: 20px;
+  }
+} 
