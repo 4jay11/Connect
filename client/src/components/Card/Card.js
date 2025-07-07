@@ -4,7 +4,7 @@ import { CardItem } from "./CardItem";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiPause, FiPlay } from "react-icons/fi";
 
-const Card = ({ data, onCardComplete, cardType }) => {
+const Card = ({ data, onCardComplete, onHighlightDeleted, cardType }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cards, setCards] = useState([]);
   const [isPaused, setIsPaused] = useState(false);
@@ -124,6 +124,13 @@ const Card = ({ data, onCardComplete, cardType }) => {
     setDropdownOpen(isOpen);
   };
 
+  // Handler for highlight deletion
+  const handleHighlightDeleted = () => {
+    if (onHighlightDeleted) {
+      onHighlightDeleted();
+    }
+  };
+
   return (
     <div className="wrapper">
       <div className="card-container">
@@ -188,6 +195,7 @@ const Card = ({ data, onCardComplete, cardType }) => {
             <CardItem
               post={cards[currentIndex]}
               onStoryEnd={handleNext}
+              onHighlightDeleted={handleHighlightDeleted}
               cardType={cardType}
               isPaused={isPaused}
               setIsPaused={setIsPaused}

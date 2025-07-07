@@ -73,6 +73,19 @@ const Cards = ({ data, route, cardType }) => {
       "total:",
       userIds.length
     );
+
+    // Check if there are any highlights/stories left
+    if (userIds.length === 0) {
+      // No highlights/stories left, navigate back
+      if (cardType === "highlight") {
+        navigate(`/profile/${userId}`);
+      } else {
+        navigate("/");
+      }
+      return;
+    }
+
+    // Check if this was the last highlight/story
     if (currentIndex < userIds.length - 1) {
       // Move to the next highlight group
       handleNext();
@@ -86,6 +99,25 @@ const Cards = ({ data, route, cardType }) => {
     }
   };
 
+  // Handle deletion of current highlight
+  const handleHighlightDeleted = () => {
+    // If this was the last highlight, go back to profile
+    if (userIds.length <= 1) {
+      if (cardType === "highlight") {
+        navigate(`/profile/${userId}`);
+      } else {
+        navigate("/");
+      }
+    } else if (currentIndex === userIds.length - 1) {
+      // If this was the last in the list, go to the previous one
+      goToIndex(currentIndex - 1);
+    } else {
+      // Otherwise, refresh the current view to show the next highlight
+      const newIndex = Math.min(currentIndex, userIds.length - 2);
+      goToIndex(newIndex);
+    }
+  };
+
   // Swipe handling
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
@@ -96,6 +128,37 @@ const Cards = ({ data, route, cardType }) => {
     if (touchStart - touchEnd > 100) handleNext(); // swipe left
     if (touchStart - touchEnd < -100) handlePrev(); // swipe right
   };
+
+  // If no data or empty userIds, show empty state
+  if (!data || data.length === 0 || userIds.length === 0) {
+    return (
+      <div className="empty-cards-wrapper">
+        <div className="empty-card">
+          <p>
+            No {cardType === "highlight" ? "highlights" : "stories"} available
+          </p>
+          <button
+            onClick={() =>
+              cardType === "highlight"
+                ? navigate(`/profile/${userId}`)
+                : navigate("/")
+            }
+            style={{
+              padding: "10px 20px",
+              marginTop: "20px",
+              backgroundColor: "#1877f2",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Go back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const currentUserId = userIds[currentIndex];
   const currentUserCards = cardList[currentUserId] || [];
@@ -125,6 +188,7 @@ const Cards = ({ data, route, cardType }) => {
               <Card
                 data={currentUserCards}
                 onCardComplete={handleCardComplete}
+                onHighlightDeleted={handleHighlightDeleted}
                 setActiveStoryId={() => {}}
                 cardType={cardType === "highlight" ? "highlight" : "story"}
                 key={currentUserId} // Add key to force re-render when changing highlights
@@ -132,6 +196,24 @@ const Cards = ({ data, route, cardType }) => {
             ) : (
               <div className="empty-card">
                 <p>No stories available</p>
+                <button
+                  onClick={() =>
+                    cardType === "highlight"
+                      ? navigate(`/profile/${userId}`)
+                      : navigate("/")
+                  }
+                  style={{
+                    padding: "10px 20px",
+                    marginTop: "20px",
+                    backgroundColor: "#1877f2",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Go back
+                </button>
               </div>
             )}
           </div>

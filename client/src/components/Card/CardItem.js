@@ -12,7 +12,7 @@ import {
   FiFolder,
 } from "react-icons/fi";
 import { AiFillHeart } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   deleteStory,
   likeStory,
@@ -27,6 +27,7 @@ import { useSelector } from "react-redux";
 export const CardItem = ({
   post,
   onStoryEnd,
+  onHighlightDeleted,
   cardType,
   isPaused,
   setIsPaused,
@@ -52,6 +53,7 @@ export const CardItem = ({
   const contentRef = useRef(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const params = useParams();
 
   const currentUser = useSelector((state) => state.auth.user);
 
@@ -109,14 +111,34 @@ export const CardItem = ({
 
       if (deleteTarget.type === "story") {
         await deleteStory(deleteTarget.id);
-        if (onStoryEnd) onStoryEnd();
+
+        // Navigate based on card type after deletion
+        if (cardType === "highlight") {
+          // If it's the last story in current highlight, navigate to profile
+          if (onStoryEnd) onStoryEnd();
+        } else {
+          // For regular stories, navigate to feed
+          navigate("/");
+        }
       } else if (deleteTarget.type === "storyFromHighlight") {
         await deleteStoryFromHighlight(
           deleteTarget.highlightId,
           deleteTarget.storyId
         );
+
+        // If it's the last story in highlight, navigate to profile
+        if (onStoryEnd) onStoryEnd();
       } else if (deleteTarget.type === "highlight") {
         await deleteHighlight(deleteTarget.highlightId);
+
+        // Notify parent that highlight was deleted
+        if (onHighlightDeleted) {
+          onHighlightDeleted();
+        } else {
+          // Fallback navigation if onHighlightDeleted is not provided
+          const profileUserId = params.userId || currentUser._id;
+          navigate(`/profile/${profileUserId}`);
+        }
       }
 
       setShowDeleteConfirm(false);
@@ -138,7 +160,16 @@ export const CardItem = ({
     }
   };
 
-  const handleClose = () => navigate("/");
+  const handleClose = () => {
+    // Navigate based on card type when closing
+    if (cardType === "highlight") {
+      const profileUserId = params.userId || currentUser._id;
+      navigate(`/profile/${profileUserId}`);
+    } else {
+      // For regular stories, navigate to feed
+      navigate("/");
+    }
+  };
 
   const handleAddToExistingHighlight = async (highlightId) => {
     try {
