@@ -56,12 +56,16 @@ authRouter.post("/login", async (req, res) => {
     });
 
     // res.cookie("token", token);
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, // set to true in production or HTTPS environment
-      sameSite: "None", // allows sending cookie cross-origin
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      httpOnly: isProduction ? true : false,
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
+      path: "/",
+      maxAge: 24 * 60 * 60 * 1000,
     });
+
     
 
 
@@ -91,6 +95,21 @@ authRouter.get("/allUser", async (req, res) => {
     res.status(200).json({ users });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Node.js Express route
+authRouter.get("/api/auth/check-session", (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ isLoggedIn: false });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return res.status(200).json({ isLoggedIn: true, user: decoded });
+  } catch (err) {
+    return res.status(401).json({ isLoggedIn: false });
   }
 });
 

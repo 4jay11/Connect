@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector , useDispatch } from "react-redux";
 import FriendRequestCard from "./FriendRequestCard";
 import "./FriendRequest.css";
 import { getAllFriendRequests } from "../../services/connectionApi";
-
+import { useToast } from "../../context/ToastContext";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../redux/Slices/authSlice";
 const FriendRequests = () => {
   const currentUser = useSelector((state) => state.auth.user);
   const [friendRequests, setFriendRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { showToast } = useToast();
   useEffect(() => {
     if (!currentUser?._id) return;
 
@@ -22,6 +26,11 @@ const FriendRequests = () => {
         setError(
           err.response?.data?.error || "Failed to load friend requests."
         );
+        if (err.response?.data?.error == "User not logged in") {
+          showToast("Session expired. Please login again.", "error");
+          dispatch(logout());
+          navigate("/login");
+        }
       } finally {
         setLoading(false);
       }

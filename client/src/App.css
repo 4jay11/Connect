@@ -182,8 +182,15 @@ main .container .right{
     margin-left: 1rem;
     margin-right: 1rem;
   }
+
   
   main .middle .story{
     height: 10rem;
+  }
+}
+
+@media screen and (max-width:360px){
+    main .middle {
+    width: 330px;
   }
 }

@@ -33,18 +33,18 @@ const Navbar = () => {
   useClickOutside(profileMenuRef, () => setShowProfileMenu(false));
   useClickOutside(searchBarRef, () => setResults([]));
 
-  useEffect(() => {
-    const token = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("token="))
-      ?.split("=")[1];
+  // useEffect(() => {
+  //   const token = document.cookie
+  //     .split("; ")
+  //     .find((row) => row.startsWith("token="))
+  //     ?.split("=")[1];
 
-    if (!token) {
-      showToast("Session expired. Please login again.", "error");
-      dispatch(logout());
-      navigate("/login");
-    }
-  }, []);
+  //   if (!token) {
+  //     showToast("Session expired. Please login again.", "error");
+  //     dispatch(logout());
+  //     navigate("/login");
+  //   }
+  // }, []);
 
   const fetchUsers = async (searchTerm) => {
     try {
