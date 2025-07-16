@@ -4,7 +4,7 @@ import axios from "axios";
 import { ThreeDots } from "react-loader-spinner";
 import { FaImage, FaCheck, FaTimes } from "react-icons/fa";
 import "./StoryUploader.css";
-
+import {REACT_APP_BACKEND_BASEURL} from "../../utils/constants"
 const StoryUploader = () => {
   const [content, setContent] = useState("");
   const [imgFile, setImgFile] = useState(null);
@@ -60,7 +60,7 @@ const StoryUploader = () => {
       const imageUrl = await uploadFile();
 
       const res = await axios.post(
-        "http://localhost:8000/story/addNewStory",
+        `${REACT_APP_BACKEND_BASEURL}/story/addNewStory`,
         {
           content,
           image: imageUrl,

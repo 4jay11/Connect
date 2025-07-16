@@ -4,7 +4,7 @@ import axios from "axios";
 import Post from "./Post";
 import PostShimmer from "./PostShimmer";
 import "./Posts.css";
-
+import { REACT_APP_BACKEND_BASEURL } from "../../utils/constants";
 const Posts = ({ userId = null }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ const Posts = ({ userId = null }) => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      let url = "http://localhost:8000/post/post-generator";
+      let url = `${REACT_APP_BACKEND_BASEURL}/post/post-generator`;
 
       const res = await axios.get(url, { withCredentials: true });
       console.log(res.data);
@@ -33,7 +33,7 @@ const Posts = ({ userId = null }) => {
   const handleLike = async (postId) => {
     try {
       await axios.post(
-        `http://localhost:8000/post-reaction/like/${postId}`,
+        `${REACT_APP_BACKEND_BASEURL}/post-reaction/like/${postId}`,
         {},
         { withCredentials: true }
       );
@@ -61,7 +61,7 @@ const Posts = ({ userId = null }) => {
   const handleBookmark = async (postId) => {
     try {
       await axios.post(
-        `http://localhost:8000/post-reaction/bookmark/${postId}`,
+        `${REACT_APP_BACKEND_BASEURL}/post-reaction/bookmark/${postId}`,
         {},
         { withCredentials: true }
       );
@@ -88,7 +88,7 @@ const Posts = ({ userId = null }) => {
 
   const handlePostDelete = async (postId) => {
     try {
-      await axios.delete(`http://localhost:8000/post/${postId}`, {
+      await axios.delete(`${REACT_APP_BACKEND_BASEURL}/post/${postId}`, {
         withCredentials: true,
       });
       setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));

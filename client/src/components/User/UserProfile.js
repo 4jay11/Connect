@@ -9,7 +9,7 @@ import ProfileNotFound from "./ProfileNotFound";
 import UserNotFound from "./UserNotFound";
 import { getUserProfile } from "../../services/userApi";
 import "./UserProfile.css";
-
+import { REACT_APP_BACKEND_BASEURL } from "../../utils/constants";
 const UserProfile = () => {
   const { id } = useParams(); // Get user ID from URL params
   const currentUser = useSelector((state) => state.auth.user);
@@ -76,7 +76,7 @@ const UserProfile = () => {
   const handleLike = async (postId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/post-reaction/like/${postId}`,
+        `${REACT_APP_BACKEND_BASEURL}/post-reaction/like/${postId}`,
         {
           method: "POST",
           credentials: "include",
@@ -111,7 +111,7 @@ const UserProfile = () => {
   const handleBookmark = async (postId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/post-reaction/bookmark/${postId}`,
+        `${REACT_APP_BACKEND_BASEURL}/post-reaction/bookmark/${postId}`,
         {
           method: "POST",
           credentials: "include",
@@ -148,10 +148,13 @@ const UserProfile = () => {
     if (!isCurrentUser) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/post/${postId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${REACT_APP_BACKEND_BASEURL}/post/${postId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
       if (response.ok) {
         setUserPosts((prevPosts) =>
