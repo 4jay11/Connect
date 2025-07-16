@@ -6,7 +6,7 @@ import PostContent from "./PostContent";
 import PostComments from "./PostComments";
 import PostPopUp from "./PostPopUp";
 import "./Post.css";
-import { REACT_APP_BACKEND_BASEURL } from "../../utils/constants";
+
 const Post = ({
   post,
   onLike,
@@ -55,7 +55,7 @@ const Post = ({
     setIsLoading(true);
     try {
       const res = await axios.get(
-        `${REACT_APP_BACKEND_BASEURL}/post/comments/${post_id}`,
+        `${process.env.REACT_APP_BACKEND_BASEURL}/post/comments/${post_id}`,
         {
           withCredentials: true,
         }
@@ -73,7 +73,7 @@ const Post = ({
 
     try {
       const res = await axios.post(
-        `${REACT_APP_BACKEND_BASEURL}/post-reaction/comment/${post_id}`,
+        `${process.env.REACT_APP_BACKEND_BASEURL}/post-reaction/comment/${post_id}`,
         { text: newComment },
         { withCredentials: true }
       );
@@ -86,7 +86,7 @@ const Post = ({
   const handleDeleteComment = async (commentId) => {
     try {
       await axios.delete(
-        `${REACT_APP_BACKEND_BASEURL}/post-reaction/comment/${commentId}`,
+        `${process.env.REACT_APP_BACKEND_BASEURL}/post-reaction/comment/${commentId}`,
         {
           withCredentials: true,
         }

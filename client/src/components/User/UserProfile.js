@@ -9,7 +9,7 @@ import ProfileNotFound from "./ProfileNotFound";
 import UserNotFound from "./UserNotFound";
 import { getUserProfile } from "../../services/userApi";
 import "./UserProfile.css";
-import { REACT_APP_BACKEND_BASEURL } from "../../utils/constants";
+
 const UserProfile = () => {
   const { id } = useParams(); // Get user ID from URL params
   const currentUser = useSelector((state) => state.auth.user);
@@ -76,7 +76,7 @@ const UserProfile = () => {
   const handleLike = async (postId) => {
     try {
       const response = await fetch(
-        `${REACT_APP_BACKEND_BASEURL}/post-reaction/like/${postId}`,
+        `${process.env.REACT_APP_BACKEND_BASEURL}/post-reaction/like/${postId}`,
         {
           method: "POST",
           credentials: "include",
@@ -111,7 +111,7 @@ const UserProfile = () => {
   const handleBookmark = async (postId) => {
     try {
       const response = await fetch(
-        `${REACT_APP_BACKEND_BASEURL}/post-reaction/bookmark/${postId}`,
+        `${process.env.REACT_APP_BACKEND_BASEURL}/post-reaction/bookmark/${postId}`,
         {
           method: "POST",
           credentials: "include",
@@ -149,7 +149,7 @@ const UserProfile = () => {
 
     try {
       const response = await fetch(
-        `${REACT_APP_BACKEND_BASEURL}/post/${postId}`,
+        `${process.env.REACT_APP_BACKEND_BASEURL}/post/${postId}`,
         {
           method: "DELETE",
           credentials: "include",

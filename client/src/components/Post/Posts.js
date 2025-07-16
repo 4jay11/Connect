@@ -4,7 +4,7 @@ import axios from "axios";
 import Post from "./Post";
 import PostShimmer from "./PostShimmer";
 import "./Posts.css";
-import { REACT_APP_BACKEND_BASEURL } from "../../utils/constants";
+
 const Posts = ({ userId = null }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +18,7 @@ const Posts = ({ userId = null }) => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      let url = `${REACT_APP_BACKEND_BASEURL}/post/post-generator`;
+      let url = `${process.env.REACT_APP_BACKEND_BASEURL}/post/post-generator`;
 
       const res = await axios.get(url, { withCredentials: true });
       console.log(res.data);
@@ -33,7 +33,7 @@ const Posts = ({ userId = null }) => {
   const handleLike = async (postId) => {
     try {
       await axios.post(
-        `${REACT_APP_BACKEND_BASEURL}/post-reaction/like/${postId}`,
+        `${process.env.REACT_APP_BACKEND_BASEURL}/post-reaction/like/${postId}`,
         {},
         { withCredentials: true }
       );
@@ -61,7 +61,7 @@ const Posts = ({ userId = null }) => {
   const handleBookmark = async (postId) => {
     try {
       await axios.post(
-        `${REACT_APP_BACKEND_BASEURL}/post-reaction/bookmark/${postId}`,
+        `${process.env.REACT_APP_BACKEND_BASEURL}/post-reaction/bookmark/${postId}`,
         {},
         { withCredentials: true }
       );
@@ -88,9 +88,12 @@ const Posts = ({ userId = null }) => {
 
   const handlePostDelete = async (postId) => {
     try {
-      await axios.delete(`${REACT_APP_BACKEND_BASEURL}/post/${postId}`, {
-        withCredentials: true,
-      });
+      await axios.delete(
+        `${process.env.REACT_APP_BACKEND_BASEURL}/post/${postId}`,
+        {
+          withCredentials: true,
+        }
+      );
       setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
     } catch (err) {
       console.error("Error deleting post:", err);

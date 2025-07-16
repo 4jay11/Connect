@@ -1,6 +1,6 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
-import {REACT_APP_BACKEND_BASEURL} from "../utils/constants"
+
 // Get user profile 
 export const getUserProfile = async (userId) => {
   try {
@@ -10,7 +10,7 @@ export const getUserProfile = async (userId) => {
     }
 
     // Use direct URL as specified in the user query
-    const url = `${REACT_APP_BACKEND_BASEURL}/user/${userId}`;
+    const url = `${process.env.REACT_APP_BACKEND_BASEURL}/user/${userId}`;
     console.log("Fetching user profile from:", url);
 
     const response = await axios.get(url, {

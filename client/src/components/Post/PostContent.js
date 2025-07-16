@@ -11,7 +11,6 @@ import {
   FaShare,
 } from "react-icons/fa";
 import "./PostContent.css";
-import { REACT_APP_API_URL } from "../../utils/constants";
 const PostContent = ({
   profilePhoto,
   username,
@@ -65,7 +64,7 @@ const PostContent = ({
   };
 
   const handleShare = () => {
-    navigator.clipboard.writeText(`${REACT_APP_API_URL}/post/${post_id}`);
+    navigator.clipboard.writeText(`${process.env.REACT_APP_API_URL}/post/${post_id}`);
     alert("Link copied to clipboard!");
     setShowOptions(false);
   };
